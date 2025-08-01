@@ -1,0 +1,124 @@
+# MovieZone Telegram Bot
+
+## Overview
+
+MovieZone is a Telegram bot application designed for movie discovery, sharing, and request management. The bot allows users to search for movies, browse by categories, request new movies, and download content through an ad-based link system. It features role-based access control with owner, admin, and regular user permissions.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+The application follows a modular architecture with clear separation of concerns:
+
+- **Main Application**: `main.py` serves as the entry point, setting up the Telegram bot application with handlers and job scheduling
+- **Configuration Management**: Centralized configuration in `config.py` with environment variables and constants
+- **Data Layer**: JSON-based file storage system managed through `database.py`
+- **Handler Layer**: Modular handlers for different bot functionalities in the `handlers/` directory
+- **Utility Functions**: Common functions and decorators in `utils.py`
+
+## Key Components
+
+### 1. Bot Core (`main.py`)
+- Telegram bot application setup using python-telegram-bot library
+- Handler registration for commands, messages, and callbacks
+- Auto-deletion job scheduling for message cleanup
+- Chat member update handling for channel management
+
+### 2. Configuration (`config.py`)
+- Bot token and username configuration
+- Owner ID and admin settings
+- Category and language definitions for movies
+- Ad page URL configuration
+- Message templates for movie posts
+- Conversation timeout settings
+
+### 3. Database Layer (`database.py`)
+- JSON file-based storage system
+- Separate files for users, admins, movies, channels, requests, and tokens
+- CRUD operations for all entities
+- Data initialization and file management
+
+### 4. Handler Modules
+- **Start Handler**: Welcome messages, user registration, deep link processing
+- **Movie Handlers**: Search functionality, category browsing, movie details
+- **Conversation Handlers**: Multi-step conversations for adding movies
+- **Callback Handler**: Inline keyboard button interactions
+- **Owner Handlers**: Admin management, channel management (owner-only features)
+
+### 5. Utility Functions (`utils.py`)
+- Role-based access control decorator (`@restricted`)
+- Keyboard generation functions
+- Movie post formatting
+- Ad link generation for monetization
+
+## Data Flow
+
+### User Registration Flow
+1. User sends `/start` command
+2. Bot adds user to database if not exists
+3. Bot sends welcome message with role-appropriate keyboard
+
+### Movie Search Flow
+1. User requests movie search
+2. Bot prompts for search query
+3. Database searches movies by title/description
+4. Bot returns results with download options
+
+### Movie Request Flow
+1. User submits movie request
+2. Request stored in database with pending status
+3. Admins/owner can view and manage requests
+4. Users get notified when requests are fulfilled
+
+### File Download Flow
+1. User clicks download button
+2. Bot generates secure token and ad page link
+3. User visits ad page and gets redirected back with token
+4. Bot validates token and sends file
+
+## External Dependencies
+
+### Core Libraries
+- `python-telegram-bot`: Telegram Bot API wrapper
+- `json`: Built-in JSON handling for data persistence
+- `os`: Environment variable and file system operations
+- `logging`: Application logging and debugging
+- `hashlib`: Token generation and security
+- `datetime`: Time-based operations and scheduling
+
+### Optional Integrations
+- **Supabase**: Database configuration present but not currently implemented
+- **GitHub Pages**: Ad page hosting for monetization system
+
+## Deployment Strategy
+
+### File-Based Storage
+- Uses JSON files in `data/` directory for persistence
+- Suitable for small to medium scale deployments
+- Easy backup and migration capabilities
+- No external database dependencies required
+
+### Environment Configuration
+- Bot token configurable via environment variables
+- Fallback to hardcoded values for development
+- Owner ID and other settings in configuration file
+
+### Modular Design
+- Handler-based architecture allows easy feature addition/removal
+- Clear separation between business logic and Telegram API interactions
+- Conversation handlers for complex user interactions
+
+### Auto-Cleanup
+- Scheduled message deletion after 48 hours
+- Token expiration and cleanup mechanisms
+- Request status management and cleanup
+
+### Role-Based Security
+- Owner: Full access to all features including admin management
+- Admin: Movie management and request handling
+- User: Basic search, browse, and request functionality
+- Decorator-based access control throughout the application
+
+The application is designed to be easily deployable on platforms like Replit, with minimal external dependencies and a self-contained data storage system.
