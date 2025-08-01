@@ -65,7 +65,7 @@ def save_json(file_path: str, data: Dict):
 
 # --- User Management Functions ---
 
-def add_user_if_not_exists(user_id: int, first_name: str, username: str = None) -> bool:
+def add_user_if_not_exists(user_id: int, first_name: str, username: Optional[str] = None) -> bool:
     """Add a user to the database if they don't exist."""
     users = load_json(USERS_FILE)
     user_id_str = str(user_id)
@@ -110,7 +110,7 @@ def get_user_role(user_id: int) -> str:
 
 # --- Admin Management Functions ---
 
-def add_admin(admin_id: int, short_name: str, first_name: str, username: str = None) -> bool:
+def add_admin(admin_id: int, short_name: str, first_name: str, username: Optional[str] = None) -> bool:
     """Add a new admin to the database."""
     admins = load_json(ADMINS_FILE)
     admin_id_str = str(admin_id)
