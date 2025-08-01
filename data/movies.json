@@ -1,0 +1,31 @@
+{
+  "next_id": 2,
+  "movies": {
+    "1": {
+      "added_by": 5379553841,
+      "categories": [
+        "🛸 Sci-Fi",
+        "🎨 Animation"
+      ],
+      "languages": [
+        "Telugu",
+        "Bengali"
+      ],
+      "files": {
+        "480p": [
+          "BAACAgUAAxkBAAID6WiKH0XDHt942pHiuX0NpFw0a_mcAALgFwACtCxQVMVranvaCjfjNgQ",
+          "AgAD4BcAArQsUFQ"
+        ]
+      },
+      "thumbnail_file_id": "AgACAgUAAxkBAAIDuWiJ409Y5iAhqtZjxmdKMzpqtPHTAAJ_yDEbtCxQVAGNCPumdMhAAQADAgADeQADNgQ",
+      "title": "Ht",
+      "release_year": "2025",
+      "runtime": "3.14",
+      "imdb_rating": "5.8",
+      "is_series": false,
+      "movie_id": 1,
+      "added_at": "2025-07-30T13:34:02.183478",
+      "download_count": 0
+    }
+  }
+}
