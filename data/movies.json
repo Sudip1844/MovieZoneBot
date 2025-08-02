@@ -1,5 +1,5 @@
 {
-  "next_id": 2,
+  "next_id": 3,
   "movies": {
     "1": {
       "added_by": 5379553841,
@@ -25,6 +25,31 @@
       "is_series": false,
       "movie_id": 1,
       "added_at": "2025-07-30T13:34:02.183478",
+      "download_count": 0
+    },
+    "2": {
+      "added_by": 5379553841,
+      "categories": [
+        "🎬 Bollywood",
+        "🎨 Animation"
+      ],
+      "languages": [
+        "Bengali"
+      ],
+      "files": {
+        "480p": [
+          "BAACAgUAAxkBAAIEFWiOKDrTvap8MrAKP7uuuRQju_SGAAKhGgACO4VxVPw7SzhaPwLpNgQ",
+          "AgADoRoAAjuFcVQ"
+        ]
+      },
+      "thumbnail_file_id": "AgACAgUAAxkBAAIECGiOJ-DtA7XknJ3FUHylDN2RD7_jAAKbxDEbO4VxVGmNJ8XrNgbqAQADAgADeQADNgQ",
+      "title": "Tite",
+      "release_year": "২০২৩",
+      "runtime": "৩.১৪",
+      "imdb_rating": "৫.৬",
+      "is_series": false,
+      "movie_id": 2,
+      "added_at": "2025-08-02T15:01:20.165418",
       "download_count": 0
     }
   }

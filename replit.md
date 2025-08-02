@@ -18,12 +18,20 @@ Preferred communication style: Simple, everyday language.
 - Bot application now runs successfully with proper security practices
 
 ### Recent Updates - August 2, 2025
-- **Role-Based Command Visibility**: Implemented strict role-based keyboard generation where:
-  - Owner: Gets management commands (Add Movie, Show Requests, Manage Admins, Manage Channels, Help)
-  - Admin: Gets movie management only (Add Movie, Show Requests, Help)
-  - User: Gets basic commands only (Search Movies, Browse Categories, Request Movie, Help)
-- **Clean Message Formatting**: Removed all bold formatting (** markers) from bot messages for proper Telegram display
-- **Improved User Experience**: Users now only see commands relevant to their role, reducing confusion
+- **Dynamic Command Menu System**: Implemented intelligent command menu management where:
+  - Default: Only `/start` and `/help` commands visible in menu
+  - During Conversations: `/cancel` automatically appears when user enters any conversation (movie request, add movie, etc.)
+  - Auto-Restore: Command menu reverts to default when conversation ends or is cancelled
+- **Individual Request Management**: Converted bulk request display to individual message system where:
+  - Each movie request appears as separate message with dedicated action buttons
+  - Improved admin workflow with cleaner interface for handling requests
+- **Consistent Movie Display Formatting**: Standardized all movie displays across the application:
+  - Search results, category browsing, and direct movie views now use identical formatting
+  - Unified emoji system: 🎭 Language, 🎪 Genre, 📅 Release Year, ⏰ Runtime, ⭐ IMDb Rating
+  - Consistent download button formatting: "Quality || 👉 Click To Download 📥"
+  - Added promotional footer to all movie displays
+- **Role-Based Command Visibility**: Implemented strict role-based keyboard generation
+- **Clean Message Formatting**: Removed all bold formatting for proper Telegram display
 
 ## System Architecture
 

@@ -28,7 +28,7 @@ async def handle_request_action(update: Update, context: ContextTypes.DEFAULT_TY
     # Notify the user if the request was accepted
     if new_status == 'accepted':
         notification_text = (
-            f"🎉 Good news! Your requested movie, **{request_info['movie_name']}**, has been uploaded.\n\n"
+            f"🎉 Good news! Your requested movie, {request_info['movie_name']}, has been uploaded.\n\n"
             "You can now find it using the 'Search Movies' button in the bot."
         )
         try:
@@ -49,18 +49,18 @@ async def handle_request_action(update: Update, context: ContextTypes.DEFAULT_TY
         await query.edit_message_text("🎉 All pending requests have been handled!")
         return
 
-    message_text = "📋 **Pending Movie Requests** (Updated)\n\n"
+    message_text = "📋 Pending Movie Requests (Updated)\n\n"
     buttons = []
     for i, req in enumerate(pending_requests, 1):
         user_info = f"@{req['users']['username']}" if req['users'].get('username') else f"ID: {req['user_id']}"
-        message_text += f"**{i}. {req['movie_name']}**\n   👤 Requested by: {user_info}\n   🗓️ On: {req['requested_at'][:10]}\n\n"
+        message_text += f"{i}. {req['movie_name']}\n   👤 Requested by: {user_info}\n   🗓️ On: {req['requested_at'][:10]}\n\n"
         buttons.append([
             InlineKeyboardButton(f"✅ Done {i}", callback_data=f"req_done_{req['request_id']}"),
             InlineKeyboardButton(f"🗑️ Delete {i}", callback_data=f"req_del_{req['request_id']}")
         ])
     
     reply_markup = InlineKeyboardMarkup(buttons)
-    await query.edit_message_text(message_text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    await query.edit_message_text(message_text, reply_markup=reply_markup)
 
 
 async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -85,7 +85,7 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
                 return
 
             movie_title = movie_details.get('title', 'this movie')
-            await query.edit_message_text(f"To download **{movie_title}** in **{quality}**, you need to watch a short ad.", parse_mode=ParseMode.MARKDOWN)
+            await query.edit_message_text(f"To download {movie_title} in {quality}, you need to watch a short ad.")
             
             ad_link_markup = generate_ad_link_button(user_id=user_id, movie_id=movie_id, quality=quality)
             if ad_link_markup:
@@ -100,24 +100,38 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
                 await query.edit_message_text("❌ Error: Movie not found.")
                 return
 
-            response_text = f"🎬 <b>{movie_details.get('title', 'N/A')}</b>\n\n" \
-                            f"<b>Description:</b> {movie_details.get('description', 'N/A')}\n" \
-                            f"<b>IMDb:</b> {movie_details.get('imdb_rating', 'N/A')}/10\n" \
-                            f"<b>Languages:</b> {', '.join(movie_details.get('languages', []))}\n" \
-                            f"<b>Categories:</b> {', '.join(movie_details.get('categories', []))}"
+            # Use consistent formatting like the main movie display
+            response_text = f"🎬 {movie_details.get('title', 'N/A')}\n\n" \
+                            f"🎭 Language: {', '.join(movie_details.get('languages', []))}\n" \
+                            f"🎪 Genre: {', '.join(movie_details.get('categories', []))}\n" \
+                            f"📅 Release Year: {movie_details.get('release_year', 'N/A')}\n" \
+                            f"⏰ Runtime: {movie_details.get('runtime', 'N/A')}\n" \
+                            f"⭐ IMDb Rating: {movie_details.get('imdb_rating', 'N/A')}/10\n\n" \
+                            f"🔗 Download Link Below"
             
-            quality_buttons_markup = get_quality_buttons(movie_id, movie_details.get('files', {}))
+            # Create quality buttons with consistent formatting
+            files = movie_details.get('files', {})
+            buttons = []
+            for quality in files.keys():
+                callback_data = f"quality_{movie_id}_{quality}"
+                button_text = f"{quality} || 👉 Click To Download 📥"
+                buttons.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
+            
+            # Add promotional text
+            response_text += f"\n\n🔥 Ultra Fast • Direct Access\n🎬 Join Now: @moviezone969\n🔔 New Movies Uploaded Daily!"
+            
+            quality_buttons_markup = InlineKeyboardMarkup(buttons)
             
             thumbnail_id = movie_details.get('thumbnail_file_id')
             if thumbnail_id:
                 try:
                     await query.edit_message_text("Please see the movie details below:")
-                    await query.message.reply_photo(photo=thumbnail_id, caption=response_text, parse_mode=ParseMode.HTML, reply_markup=quality_buttons_markup)
+                    await query.message.reply_photo(photo=thumbnail_id, caption=response_text, reply_markup=quality_buttons_markup)
                 except Exception as e:
                     logger.error(f"Failed to send photo for movie {movie_id}: {e}")
-                    await query.message.reply_html(response_text, reply_markup=quality_buttons_markup)
+                    await query.message.reply_text(response_text, reply_markup=quality_buttons_markup)
             else:
-                await query.message.reply_html(response_text, reply_markup=quality_buttons_markup)
+                await query.message.reply_text(response_text, reply_markup=quality_buttons_markup)
         
         elif prefix == 'req':
             action, request_id = parts[1], int(parts[2])
@@ -132,7 +146,7 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
                 await query.edit_message_text(f"❌ No movies found in category: {category}")
                 return
             
-            message_text = f"🎬 **Movies in {category}:**\n\n"
+            message_text = f"🎬 Movies in {category}:\n\n"
             buttons = []
             
             for i, movie in enumerate(movies, 1):
@@ -140,7 +154,7 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
                 buttons.append([InlineKeyboardButton(f"🎬 {movie.get('title', 'Unknown')}", callback_data=f"view_{movie['movie_id']}")])
             
             reply_markup = InlineKeyboardMarkup(buttons)
-            await query.edit_message_text(message_text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+            await query.edit_message_text(message_text, reply_markup=reply_markup)
 
         else:
             logger.warning(f"Unhandled callback prefix: {prefix}")
