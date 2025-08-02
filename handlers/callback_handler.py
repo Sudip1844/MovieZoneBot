@@ -34,8 +34,7 @@ async def handle_request_action(update: Update, context: ContextTypes.DEFAULT_TY
         try:
             await context.bot.send_message(
                 chat_id=request_info['user_id'],
-                text=notification_text,
-                parse_mode=ParseMode.MARKDOWN
+                text=notification_text
             )
             logger.info(f"Sent upload notification to user {request_info['user_id']} for movie '{request_info['movie_name']}'.")
         except BadRequest:
@@ -43,24 +42,15 @@ async def handle_request_action(update: Update, context: ContextTypes.DEFAULT_TY
         except Exception as e:
             logger.error(f"Failed to send notification to user {request_info['user_id']}: {e}")
 
-    # Refresh the request list
-    pending_requests = db.get_pending_requests(limit=10)
-    if not pending_requests:
-        await query.edit_message_text("🎉 All pending requests have been handled!")
-        return
-
-    message_text = "📋 Pending Movie Requests (Updated)\n\n"
-    buttons = []
-    for i, req in enumerate(pending_requests, 1):
-        user_info = f"@{req['users']['username']}" if req['users'].get('username') else f"ID: {req['user_id']}"
-        message_text += f"{i}. {req['movie_name']}\n   👤 Requested by: {user_info}\n   🗓️ On: {req['requested_at'][:10]}\n\n"
-        buttons.append([
-            InlineKeyboardButton(f"✅ Done {i}", callback_data=f"req_done_{req['request_id']}"),
-            InlineKeyboardButton(f"🗑️ Delete {i}", callback_data=f"req_del_{req['request_id']}")
-        ])
-    
-    reply_markup = InlineKeyboardMarkup(buttons)
-    await query.edit_message_text(message_text, reply_markup=reply_markup)
+    # Delete the current message completely
+    try:
+        await query.delete_message()
+        logger.info(f"Deleted request message after {action} action for request {request_id}")
+    except Exception as e:
+        logger.error(f"Failed to delete message: {e}")
+        # Fallback: edit message to show it's handled
+        action_emoji = "✅" if action == 'done' else "🗑️"
+        await query.edit_message_text(f"{action_emoji} Request '{request_info['movie_name']}' has been {new_status}.")
 
 
 async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

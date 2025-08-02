@@ -1,5 +1,5 @@
 {
-  "next_id": 4,
+  "next_id": 5,
   "requests": {
     "1": {
       "request_id": 1,
@@ -21,8 +21,17 @@
       "request_id": 3,
       "user_id": 7778563160,
       "movie_name": "📂 Browse Categories",
-      "status": "pending",
-      "requested_at": "2025-08-02T15:59:07.336146"
+      "status": "accepted",
+      "requested_at": "2025-08-02T15:59:07.336146",
+      "updated_at": "2025-08-02T16:25:31.445979"
+    },
+    "4": {
+      "request_id": 4,
+      "user_id": 7778563160,
+      "movie_name": "Gug",
+      "status": "accepted",
+      "requested_at": "2025-08-02T16:25:12.016188",
+      "updated_at": "2025-08-02T16:26:31.828960"
     }
   }
 }

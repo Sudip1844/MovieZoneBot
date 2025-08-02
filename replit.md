@@ -24,7 +24,8 @@ Preferred communication style: Simple, everyday language.
   - Auto-Restore: Command menu reverts to default when conversation ends or is cancelled
 - **Individual Request Management**: Converted bulk request display to individual message system where:
   - Each movie request appears as separate message with dedicated action buttons
-  - Improved admin workflow with cleaner interface for handling requests
+  - Messages automatically delete after admin action (Done/Delete) to prevent confusion
+  - Clean admin workflow with no leftover messages or button conflicts
 - **Consistent Movie Display Formatting**: Standardized all movie displays across the application:
   - Search results, category browsing, and direct movie views now use identical formatting
   - Unified emoji system: 🎭 Language, 🎪 Genre, 📅 Release Year, ⏰ Runtime, ⭐ IMDb Rating
