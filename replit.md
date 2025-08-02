@@ -10,12 +10,20 @@ Preferred communication style: Simple, everyday language.
 
 ## Migration Status
 
-**Migration to Replit Completed**: August 1, 2025
+**Migration to Replit Completed**: August 2, 2025
 - Successfully migrated from Replit Agent to standard Replit environment
 - Fixed package conflicts between telegram and python-telegram-bot packages
 - Secured bot token configuration (removed hardcoded credentials)
 - Updated dependency management for Replit compatibility
 - Bot application now runs successfully with proper security practices
+
+### Recent Updates - August 2, 2025
+- **Role-Based Command Visibility**: Implemented strict role-based keyboard generation where:
+  - Owner: Gets management commands (Add Movie, Show Requests, Manage Admins, Manage Channels, Help)
+  - Admin: Gets movie management only (Add Movie, Show Requests, Help)
+  - User: Gets basic commands only (Search Movies, Browse Categories, Request Movie, Help)
+- **Clean Message Formatting**: Removed all bold formatting (** markers) from bot messages for proper Telegram display
+- **Improved User Experience**: Users now only see commands relevant to their role, reducing confusion
 
 ## System Architecture
 

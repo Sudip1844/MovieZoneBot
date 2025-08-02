@@ -20,9 +20,8 @@ REQUEST_MOVIE_NAME, DELETE_MOVIE_NAME, SHOW_STATS_MOVIE_NAME = range(3)
 async def search_movies(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle movie search functionality."""
     await update.message.reply_text(
-        "🔍 **Search Movies**\n\n"
-        "Please type the name of the movie you're looking for:",
-        parse_mode=ParseMode.MARKDOWN
+        "🔍 Search Movies\n\n"
+        "Please type the name of the movie you're looking for:"
     )
 
 async def handle_search_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -50,7 +49,7 @@ async def handle_search_query(update: Update, context: ContextTypes.DEFAULT_TYPE
         await show_movie_details(update, context, movie)
     else:
         # Multiple movies found, show selection
-        message_text = f"🎬 **Found {len(movies)} movies for '{query}':**\n\n"
+        message_text = f"🎬 Found {len(movies)} movies for '{query}':\n\n"
         for i, movie in enumerate(movies, 1):
             message_text += f"{i}. {movie.get('title', 'Unknown')}\n"
         
@@ -97,10 +96,9 @@ async def browse_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     """Show movie categories for browsing."""
     keyboard = get_category_keyboard()
     await update.message.reply_text(
-        "📂 **Browse by Categories**\n\n"
+        "📂 Browse by Categories\n\n"
         "Select a category to see available movies:",
-        reply_markup=keyboard,
-        parse_mode=ParseMode.MARKDOWN
+        reply_markup=keyboard
     )
 
 # --- Request Movie ---
@@ -108,7 +106,7 @@ async def browse_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 async def request_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the movie request conversation."""
     await update.message.reply_text(
-        "🙏 **Request a Movie**\n\n"
+        "🙏 Request a Movie\n\n"
         "Please tell me the name of the movie you want to request:\n\n"
         "To cancel, type /cancel."
     )
@@ -122,7 +120,7 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     # First check if the movie already exists
     existing_movies = db.search_movies(movie_name, limit=5)
     if existing_movies:
-        message_text = f"🎬 **Found similar movies:**\n\n"
+        message_text = f"🎬 Found similar movies:\n\n"
         buttons = []
         for i, movie in enumerate(existing_movies, 1):
             message_text += f"{i}. {movie.get('title', 'Unknown')}\n"
@@ -140,7 +138,7 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         # Movie not found, add to requests
         request_id = db.add_movie_request(user_id, movie_name)
         await update.message.reply_text(
-            f"✅ **Request Submitted!**\n\n"
+            f"✅ Request Submitted!\n\n"
             f"Your request for '{movie_name}' has been submitted to our admins.\n"
             f"Request ID: {request_id}\n\n"
             "You'll be notified when the movie is uploaded. Thank you for your patience!"
@@ -179,12 +177,12 @@ async def show_requests(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await update.message.reply_text("🎉 No pending movie requests at the moment!")
         return
     
-    message_text = "📋 **Pending Movie Requests**\n\n"
+    message_text = "📋 Pending Movie Requests\n\n"
     buttons = []
     
     for i, req in enumerate(pending_requests, 1):
         user_info = f"@{req['users'].get('username')}" if req['users'].get('username') else f"ID: {req['user_id']}"
-        message_text += f"**{i}. {req['movie_name']}**\n   👤 Requested by: {user_info}\n   🗓️ On: {req['requested_at'][:10]}\n\n"
+        message_text += f"{i}. {req['movie_name']}\n   👤 Requested by: {user_info}\n   🗓️ On: {req['requested_at'][:10]}\n\n"
         buttons.append([
             InlineKeyboardButton(f"✅ Done {i}", callback_data=f"req_done_{req['request_id']}"),
             InlineKeyboardButton(f"🗑️ Delete {i}", callback_data=f"req_del_{req['request_id']}")
@@ -225,7 +223,7 @@ async def get_movie_to_delete(update: Update, context: ContextTypes.DEFAULT_TYPE
         ]
         
         await update.message.reply_html(
-            f"🗑️ **Confirm Deletion**\n\n"
+            f"🗑️ Confirm Deletion\n\n"
             f"Are you sure you want to delete:\n"
             f"<b>{movie.get('title', 'Unknown')}</b>\n\n"
             f"This action cannot be undone!",
@@ -234,7 +232,7 @@ async def get_movie_to_delete(update: Update, context: ContextTypes.DEFAULT_TYPE
         return DELETE_MOVIE_NAME
     else:
         # Multiple movies found
-        message_text = f"🎬 **Found {len(movies)} movies:**\n\n"
+        message_text = f"🎬 Found {len(movies)} movies:\n\n"
         buttons = []
         
         for i, movie in enumerate(movies, 1):
@@ -287,7 +285,7 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
 async def show_stats_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the show stats conversation."""
     await update.message.reply_text(
-        "📊 **Movie Statistics**\n\n"
+        "📊 Movie Statistics\n\n"
         "Please enter the name of the movie to see its statistics:\n\n"
         "To cancel, type /cancel."
     )
@@ -309,7 +307,7 @@ async def get_movie_for_stats(update: Update, context: ContextTypes.DEFAULT_TYPE
         return ConversationHandler.END
     else:
         # Multiple movies found
-        message_text = f"🎬 **Found {len(movies)} movies:**\n\n"
+        message_text = f"🎬 Found {len(movies)} movies:\n\n"
         buttons = []
         
         for i, movie in enumerate(movies, 1):
@@ -324,14 +322,14 @@ async def get_movie_for_stats(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def show_movie_stats(update: Update, context: ContextTypes.DEFAULT_TYPE, movie: dict):
     """Show statistics for a specific movie."""
-    stats_text = f"📊 **Statistics for {movie.get('title', 'Unknown')}**\n\n"
-    stats_text += f"🎬 **Movie ID:** {movie['movie_id']}\n"
-    stats_text += f"📅 **Added on:** {movie.get('added_at', 'Unknown')[:10]}\n"
-    stats_text += f"👤 **Added by:** {movie.get('added_by', 'Unknown')}\n"
-    stats_text += f"📥 **Total Downloads:** {movie.get('download_count', 0)}\n"
-    stats_text += f"🗂️ **Available Qualities:** {', '.join(movie.get('files', {}).keys())}\n"
-    stats_text += f"🌐 **Languages:** {', '.join(movie.get('languages', []))}\n"
-    stats_text += f"📂 **Categories:** {', '.join(movie.get('categories', []))}\n"
+    stats_text = f"📊 Statistics for {movie.get('title', 'Unknown')}\n\n"
+    stats_text += f"🎬 Movie ID: {movie['movie_id']}\n"
+    stats_text += f"📅 Added on: {movie.get('added_at', 'Unknown')[:10]}\n"
+    stats_text += f"👤 Added by: {movie.get('added_by', 'Unknown')}\n"
+    stats_text += f"📥 Total Downloads: {movie.get('download_count', 0)}\n"
+    stats_text += f"🗂️ Available Qualities: {', '.join(movie.get('files', {}).keys())}\n"
+    stats_text += f"🌐 Languages: {', '.join(movie.get('languages', []))}\n"
+    stats_text += f"📂 Categories: {', '.join(movie.get('categories', []))}\n"
     
     await update.message.reply_html(stats_text)
 

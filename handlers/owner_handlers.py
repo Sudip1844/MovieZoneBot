@@ -76,10 +76,10 @@ async def get_admin_short_name(update: Update, context: ContextTypes.DEFAULT_TYP
     
     admin = context.user_data['new_admin']
     text = (
-        f"**Confirm Admin Addition**\n\n"
+        f"Confirm Admin Addition\n\n"
         f"User: {admin['first_name']} (@{admin['username']})\n"
-        f"User ID: `{admin['id']}`\n"
-        f"Short Name: `{admin['short_name']}`\n\n"
+        f"User ID: {admin['id']}\n"
+        f"Short Name: {admin['short_name']}\n\n"
         "Do you want to make this user an admin?"
     )
     keyboard = [[InlineKeyboardButton("✅ Confirm", callback_data="confirm_add_admin")],
@@ -184,10 +184,10 @@ async def get_channel_short_name(update: Update, context: ContextTypes.DEFAULT_T
     
     channel = context.user_data['new_channel']
     text = (
-        f"**Confirm Channel Addition**\n\n"
+        f"Confirm Channel Addition\n\n"
         f"Channel: {channel['channel_id']}\n"
         f"Link: {channel['link']}\n"
-        f"Short Name: `{channel['short_name']}`\n\n"
+        f"Short Name: {channel['short_name']}\n\n"
         "Do you want to add this channel?"
     )
     keyboard = [[InlineKeyboardButton("✅ Confirm", callback_data="confirm_add_channel")],

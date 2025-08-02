@@ -61,12 +61,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_role = db.get_user_role(user.id)
     welcome_message = ""
     if user_role == 'owner':
-        welcome_message = f"👑 **Welcome, Owner {user.mention_html()}!**\n\nAll special commands are available on your keyboard. Ready to manage the bot."
+        welcome_message = f"👑 Welcome, Owner {user.mention_html()}!\n\nAll special commands are available on your keyboard. Ready to manage the bot."
     elif user_role == 'admin':
-        welcome_message = f"🛡️ **Welcome, Admin {user.mention_html()}!**\n\nYou can add movies, upload files, and view user requests."
+        welcome_message = f"🛡️ Welcome, Admin {user.mention_html()}!\n\nYou can add movies, upload files, and view user requests."
     else:
         # Standard welcome message for a regular user
-        welcome_message = f"👋 **Welcome, {user.mention_html()}!**\n\nWelcome to **{BOT_USERNAME}**. Here you can find your favorite Bengali, Hindi, and dubbed movies.\n\nJust search for a movie or browse our categories to get started!"
+        welcome_message = f"👋 Welcome, {user.mention_html()}!\n\nWelcome to {BOT_USERNAME}. Here you can find your favorite Bengali, Hindi, and dubbed movies.\n\nJust search for a movie or browse our categories to get started!"
 
     keyboard = get_main_keyboard(user_role)
     await update.message.reply_html(welcome_message, reply_markup=keyboard)

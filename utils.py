@@ -37,17 +37,28 @@ def restricted(allowed_roles: List[str]):
 # --- Keyboard and Button Generation ---
 
 def get_main_keyboard(user_role: str) -> ReplyKeyboardMarkup:
-    """ব্যবহারকারীর ভূমিকার উপর ভিত্তি করে প্রধান মেন্যু কীবোর্ড তৈরি করে।"""
-    keyboard = [
-        [KeyboardButton("🔍 Search Movies"), KeyboardButton("📂 Browse Categories")],
-        [KeyboardButton("🙏 Request Movie")]
-    ]
-    if user_role in ['owner', 'admin']:
-        keyboard.append([KeyboardButton("➕ Add Movie"), KeyboardButton("📊 Show Requests")])
-    if user_role == 'owner':
-        keyboard.append([KeyboardButton("👥 Manage Admins"), KeyboardButton("📢 Manage Channels")])
+    """Create role-based main menu keyboard for users."""
     
-    keyboard.append([KeyboardButton("❓ Help")])
+    if user_role == 'owner':
+        # Owner gets all commands
+        keyboard = [
+            [KeyboardButton("➕ Add Movie"), KeyboardButton("📊 Show Requests")],
+            [KeyboardButton("👥 Manage Admins"), KeyboardButton("📢 Manage Channels")],
+            [KeyboardButton("❓ Help")]
+        ]
+    elif user_role == 'admin':
+        # Admin gets movie management commands only
+        keyboard = [
+            [KeyboardButton("➕ Add Movie"), KeyboardButton("📊 Show Requests")],
+            [KeyboardButton("❓ Help")]
+        ]
+    else:
+        # Regular users get basic commands only
+        keyboard = [
+            [KeyboardButton("🔍 Search Movies"), KeyboardButton("📂 Browse Categories")],
+            [KeyboardButton("🙏 Request Movie")],
+            [KeyboardButton("❓ Help")]
+        ]
     
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 

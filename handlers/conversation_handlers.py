@@ -62,10 +62,9 @@ async def add_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     }
     
     await update.message.reply_text(
-        "🎬 **Add New Movie/Series**\n\n"
+        "🎬 Add New Movie/Series\n\n"
         "Step 1: Please send the thumbnail for the movie (as a photo).\n\n"
-        "To cancel at any time, type /cancel.",
-        parse_mode=ParseMode.MARKDOWN
+        "To cancel at any time, type /cancel."
     )
     return GET_THUMBNAIL
 
@@ -212,9 +211,8 @@ async def upload_single_files(update: Update, context: ContextTypes.DEFAULT_TYPE
         
         reply_keyboard = [['480p', '720p', '1080p'], ["✅ All Done"]]
         await update.message.reply_text(
-            f"✅ **{quality}** file saved. Select another quality or click 'All Done' when finished.",
-            reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, one_time_keyboard=True),
-            parse_mode=ParseMode.MARKDOWN
+            f"✅ {quality} file saved. Select another quality or click 'All Done' when finished.",
+            reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, one_time_keyboard=True)
         )
         return UPLOAD_SINGLE_FILES
     
