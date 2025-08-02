@@ -58,25 +58,21 @@ async def handle_search_query(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def show_movie_details(update: Update, context: ContextTypes.DEFAULT_TYPE, movie: dict):
     """Show detailed information about a movie with consistent formatting."""
-    # Use the same formatting as in your image
+    # Keep the original format but with new emoji icons
     response_text = f"🎬 {movie.get('title', 'N/A')}\n\n" \
-                    f"🎭 Language: {', '.join(movie.get('languages', []))}\n" \
-                    f"🎪 Genre: {', '.join(movie.get('categories', []))}\n" \
+                    f"Description: {movie.get('description', 'N/A')}\n" \
                     f"📅 Release Year: {movie.get('release_year', 'N/A')}\n" \
                     f"⏰ Runtime: {movie.get('runtime', 'N/A')}\n" \
-                    f"⭐ IMDb Rating: {movie.get('imdb_rating', 'N/A')}/10\n\n" \
-                    f"🔗 Download Link Below"
+                    f"⭐ IMDb: {movie.get('imdb_rating', 'N/A')}/10\n" \
+                    f"🎭 Languages: {', '.join(movie.get('languages', []))}\n" \
+                    f"🎪 Categories: {', '.join(movie.get('categories', []))}"
     
-    # Create quality buttons with consistent formatting
+    # Create quality buttons
     files = movie.get('files', {})
     buttons = []
     for quality in files.keys():
         callback_data = f"quality_{movie['movie_id']}_{quality}"
-        button_text = f"{quality} || 👉 Click To Download 📥"
-        buttons.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
-    
-    # Add the promotional text at the bottom
-    response_text += f"\n\n🔥 Ultra Fast • Direct Access\n🎬 Join Now: @moviezone969\n🔔 New Movies Uploaded Daily!"
+        buttons.append([InlineKeyboardButton(f"🎬 {quality}", callback_data=callback_data)])
     
     quality_buttons_markup = InlineKeyboardMarkup(buttons)
     

@@ -100,25 +100,21 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
                 await query.edit_message_text("❌ Error: Movie not found.")
                 return
 
-            # Use consistent formatting like the main movie display
+            # Keep original format but with new emoji icons
             response_text = f"🎬 {movie_details.get('title', 'N/A')}\n\n" \
-                            f"🎭 Language: {', '.join(movie_details.get('languages', []))}\n" \
-                            f"🎪 Genre: {', '.join(movie_details.get('categories', []))}\n" \
+                            f"Description: {movie_details.get('description', 'N/A')}\n" \
                             f"📅 Release Year: {movie_details.get('release_year', 'N/A')}\n" \
                             f"⏰ Runtime: {movie_details.get('runtime', 'N/A')}\n" \
-                            f"⭐ IMDb Rating: {movie_details.get('imdb_rating', 'N/A')}/10\n\n" \
-                            f"🔗 Download Link Below"
+                            f"⭐ IMDb: {movie_details.get('imdb_rating', 'N/A')}/10\n" \
+                            f"🎭 Languages: {', '.join(movie_details.get('languages', []))}\n" \
+                            f"🎪 Categories: {', '.join(movie_details.get('categories', []))}"
             
-            # Create quality buttons with consistent formatting
+            # Create quality buttons
             files = movie_details.get('files', {})
             buttons = []
             for quality in files.keys():
                 callback_data = f"quality_{movie_id}_{quality}"
-                button_text = f"{quality} || 👉 Click To Download 📥"
-                buttons.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
-            
-            # Add promotional text
-            response_text += f"\n\n🔥 Ultra Fast • Direct Access\n🎬 Join Now: @moviezone969\n🔔 New Movies Uploaded Daily!"
+                buttons.append([InlineKeyboardButton(f"🎬 {quality}", callback_data=callback_data)])
             
             quality_buttons_markup = InlineKeyboardMarkup(buttons)
             
