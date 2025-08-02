@@ -105,6 +105,11 @@ async def browse_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def request_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the movie request conversation."""
+    from utils import set_conversation_commands
+    
+    # Set conversation commands
+    await set_conversation_commands(context, update.effective_chat.id)
+    
     await update.message.reply_text(
         "🙏 Request a Movie\n\n"
         "Please tell me the name of the movie you want to request:\n\n"
@@ -137,6 +142,11 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     else:
         # Movie not found, add to requests
         request_id = db.add_movie_request(user_id, movie_name)
+        from utils import restore_default_commands
+        
+        # Restore default commands
+        await restore_default_commands(context, update.effective_chat.id)
+        
         await update.message.reply_text(
             f"✅ Request Submitted!\n\n"
             f"Your request for '{movie_name}' has been submitted to our admins.\n"
@@ -177,27 +187,41 @@ async def show_requests(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await update.message.reply_text("🎉 No pending movie requests at the moment!")
         return
     
-    message_text = "📋 Pending Movie Requests\n\n"
-    buttons = []
+    await update.message.reply_text(f"📋 Found {len(pending_requests)} pending movie requests:\n")
     
+    # Send each request as individual message
     for i, req in enumerate(pending_requests, 1):
         user_info = f"@{req['users'].get('username')}" if req['users'].get('username') else f"ID: {req['user_id']}"
-        message_text += f"{i}. {req['movie_name']}\n   👤 Requested by: {user_info}\n   🗓️ On: {req['requested_at'][:10]}\n\n"
-        buttons.append([
-            InlineKeyboardButton(f"✅ Done {i}", callback_data=f"req_done_{req['request_id']}"),
-            InlineKeyboardButton(f"🗑️ Delete {i}", callback_data=f"req_del_{req['request_id']}")
-        ])
-    
-    reply_markup = InlineKeyboardMarkup(buttons)
-    await update.message.reply_html(message_text, reply_markup=reply_markup)
+        
+        message_text = f"Request #{i}: {req['movie_name']}\n"
+        message_text += f"👤 Requested by: {user_info}\n"
+        message_text += f"🗓️ On: {req['requested_at'][:10]}"
+        
+        # Individual buttons for each request
+        buttons = [
+            [
+                InlineKeyboardButton("✅ Done", callback_data=f"req_done_{req['request_id']}"),
+                InlineKeyboardButton("🗑️ Delete", callback_data=f"req_del_{req['request_id']}")
+            ]
+        ]
+        
+        await update.message.reply_text(
+            message_text,
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
 
 # --- Remove Movie (Owner/Admin) ---
 
 @restricted(allowed_roles=['owner', 'admin'])
 async def remove_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the remove movie conversation."""
+    from utils import set_conversation_commands
+    
+    # Set conversation commands
+    await set_conversation_commands(context, update.effective_chat.id)
+    
     await update.message.reply_text(
-        "🗑️ **Remove Movie**\n\n"
+        "🗑️ Remove Movie\n\n"
         "Please enter the name of the movie you want to remove:\n\n"
         "To cancel, type /cancel."
     )
@@ -284,6 +308,11 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
 @restricted(allowed_roles=['owner', 'admin'])
 async def show_stats_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the show stats conversation."""
+    from utils import set_conversation_commands
+    
+    # Set conversation commands
+    await set_conversation_commands(context, update.effective_chat.id)
+    
     await update.message.reply_text(
         "📊 Movie Statistics\n\n"
         "Please enter the name of the movie to see its statistics:\n\n"
@@ -350,6 +379,11 @@ async def handle_stats_callback(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel any ongoing conversation."""
+    from utils import restore_default_commands
+    
+    # Restore default commands
+    await restore_default_commands(context, update.effective_chat.id)
+    
     await update.message.reply_text("❌ Action cancelled.")
     context.user_data.clear()
     return ConversationHandler.END

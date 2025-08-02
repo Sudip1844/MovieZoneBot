@@ -136,16 +136,15 @@ def main() -> None:
     # 7. Error handler
     application.add_error_handler(error_handler)
 
-    # --- Set Bot Commands for Menu ---
+    # --- Set Default Bot Commands for Menu ---
     async def post_init(application):
         from telegram import BotCommand
         commands = [
             BotCommand("start", "Start the bot"),
-            BotCommand("help", "Get help and instructions"),
-            BotCommand("cancel", "Cancel current operation")
+            BotCommand("help", "Get help and instructions")
         ]
         await application.bot.set_my_commands(commands)
-        logger.info("Bot commands have been set")
+        logger.info("Default bot commands have been set")
 
     application.post_init = post_init
     

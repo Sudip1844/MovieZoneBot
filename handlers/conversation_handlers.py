@@ -52,6 +52,11 @@ def build_selection_keyboard(options: list, selected_options: set) -> InlineKeyb
 @restricted(allowed_roles=['owner', 'admin'])
 async def add_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """ /addmovie কমান্ড দিয়ে কথোপকথন শুরু করে। """
+    from utils import set_conversation_commands
+    
+    # Set conversation commands
+    await set_conversation_commands(context, update.effective_chat.id)
+    
     # আগের কোনো ডেটা থাকলে তা পরিষ্কার করে
     context.user_data.pop('movie_data', None)
     context.user_data['movie_data'] = {

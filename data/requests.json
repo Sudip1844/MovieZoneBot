@@ -5,15 +5,17 @@
       "request_id": 1,
       "user_id": 7778563160,
       "movie_name": "Thief",
-      "status": "pending",
-      "requested_at": "2025-08-02T14:48:59.682893"
+      "status": "deleted",
+      "requested_at": "2025-08-02T14:48:59.682893",
+      "updated_at": "2025-08-02T14:59:06.019215"
     },
     "2": {
       "request_id": 2,
       "user_id": 7778563160,
       "movie_name": "Hi",
-      "status": "pending",
-      "requested_at": "2025-08-02T14:50:42.017530"
+      "status": "deleted",
+      "requested_at": "2025-08-02T14:50:42.017530",
+      "updated_at": "2025-08-02T14:58:58.455398"
     }
   }
 }
