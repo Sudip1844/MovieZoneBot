@@ -194,7 +194,7 @@ async def upload_single_files(update: Update, context: ContextTypes.DEFAULT_TYPE
     if update.message.text in ['480p', '720p', '1080p']:
         quality = update.message.text
         context.user_data['selected_quality'] = quality
-        await update.message.reply_text(f"OK. Now, send the file for **{quality}**.", parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_text(f"OK. Now, send the file for {quality}.")
         return UPLOAD_SINGLE_FILES
     elif update.message.text == "✅ All Done":
         return await all_files_done(update, context)

@@ -131,27 +131,27 @@ Join: @moviezone969
 NEW_MEMBER_WELCOME_MESSAGE = """
 Welcome {user_mention} to our channel & bot!
 
-❓ **How to Use MovieZone Bot**
+❓ How to Use MovieZone Bot
 
-**Main Features:**
-- **🔍 Search:** Find movies by name.
-- **📂 Category:** Browse by genre.
-- **🙏 Request:** Request new movies.
+Main Features:
+- 🔍 Search: Find movies by name.
+- 📂 Category: Browse by genre.
+- 🙏 Request: Request new movies.
 
-**Download Process:**
+Download Process:
 1.  🔍 Search or browse for a movie.
 2.  📲 Select quality (480p/720p/1080p).
 3.  👀 Watch a short ad to support us.
 4.  📥 Download your movie instantly!
 
-**Tips:**
+Tips:
 - Use specific movie names for better search results.
 - Check our channel for the latest uploads.
 - Report any issues to admins via the bot.
 
-**Support:**
-- **Join:** @moviezone969
-- **Contact:** Use the /request command in the bot.
+Support:
+- Join: @moviezone969
+- Contact: Use the /request command in the bot.
 
 🎬 Happy watching!
 """

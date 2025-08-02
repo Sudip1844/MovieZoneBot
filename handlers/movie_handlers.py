@@ -170,7 +170,7 @@ async def force_request_movie(update: Update, context: ContextTypes.DEFAULT_TYPE
     request_id = db.add_movie_request(user_id, movie_name)
     
     await query.edit_message_text(
-        f"✅ **Request Submitted!**\n\n"
+        f"✅ Request Submitted!\n\n"
         f"Your request for '{movie_name}' has been submitted to our admins.\n"
         f"Request ID: {request_id}\n\n"
         "You'll be notified when the movie is uploaded. Thank you for your patience!"
