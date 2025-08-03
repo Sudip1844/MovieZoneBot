@@ -33,6 +33,11 @@ logger = logging.getLogger(__name__)
 @restricted(allowed_roles=['owner'])
 async def add_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to add a new admin."""
+    from utils import set_conversation_commands
+    
+    # Set conversation commands
+    await set_conversation_commands(context, update.effective_chat.id)
+    
     await update.message.reply_text(
         "Please forward a message from the user you want to make an admin.\n"
         "Or, send their Telegram User ID.\n\n"
@@ -92,7 +97,10 @@ async def confirm_add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     query = update.callback_query
     await query.answer()
 
+    from utils import restore_default_commands
+    
     if query.data == 'cancel_add_admin':
+        await restore_default_commands(context, query.message.chat_id)
         await query.edit_message_text("Admin addition cancelled.")
         context.user_data.clear()
         return ConversationHandler.END
@@ -109,7 +117,8 @@ async def confirm_add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         await query.edit_message_text(f"✅ Success! {admin['first_name']} is now an admin.")
     else:
         await query.edit_message_text("❌ Error! Could not add admin. Check the logs for details.")
-        
+    
+    await restore_default_commands(context, query.message.chat_id)
     context.user_data.clear()
     return ConversationHandler.END
 
@@ -118,30 +127,52 @@ async def confirm_add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 @restricted(allowed_roles=['owner'])
 async def remove_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Starts the conversation to remove an admin."""
+    """Starts the conversation to remove an admin with button selection."""
+    from utils import set_conversation_commands
+    
+    # Set conversation commands
+    await set_conversation_commands(context, update.effective_chat.id)
+    
     admins = db.get_all_admins()
     if not admins:
         await update.message.reply_text("There are no admins to remove.")
         return ConversationHandler.END
 
-    message_text = "Current Admins:\n"
+    # Create buttons for each admin
+    buttons = []
     for admin in admins:
-        message_text += f"- {admin['first_name']} (Short Name: `{admin['short_name']}`, ID: `{admin['user_id']}`)\n"
-
-    message_text += "\nPlease enter the User ID or the Short Name of the admin you want to remove."
-    await update.message.reply_markdown_v2(message_text)
-    return ASK_ADMIN_TO_REMOVE
-
-async def get_admin_to_remove(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Gets the identifier of the admin to be removed."""
-    identifier = update.message.text
-    success = db.remove_admin(identifier)
+        admin_name = f"{admin['first_name']} ({admin['short_name']})"
+        buttons.append([InlineKeyboardButton(admin_name, callback_data=f"remove_admin_{admin['user_id']}")])
     
-    if success:
-        await update.message.reply_text(f"✅ Admin '{identifier}' has been removed successfully.")
-    else:
-        await update.message.reply_text(f"❌ Could not find an admin with identifier '{identifier}'. Please try again.")
+    # Add cancel button
+    buttons.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_remove_admin")])
+    
+    reply_markup = InlineKeyboardMarkup(buttons)
+    await update.message.reply_text("Select admin to remove:", reply_markup=reply_markup)
+    return CONFIRM_REMOVE_ADMIN
 
+async def confirm_remove_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Confirms and removes the selected admin."""
+    query = update.callback_query
+    await query.answer()
+    
+    from utils import restore_default_commands
+    
+    if query.data == "cancel_remove_admin":
+        await restore_default_commands(context, query.message.chat_id)
+        await query.edit_message_text("❌ Admin removal cancelled.")
+        return ConversationHandler.END
+    
+    if query.data.startswith("remove_admin_"):
+        admin_id = query.data.split("_")[2]
+        success = db.remove_admin(admin_id)
+        
+        if success:
+            await query.edit_message_text(f"✅ Admin has been removed successfully.")
+        else:
+            await query.edit_message_text(f"❌ Could not remove admin. Please try again.")
+    
+    await restore_default_commands(context, query.message.chat_id)
     return ConversationHandler.END
 
 
@@ -217,11 +248,14 @@ async def confirm_add_channel(update: Update, context: ContextTypes.DEFAULT_TYPE
         short_name=channel['short_name']
     )
     
+    from utils import restore_default_commands
+    
     if success:
         await query.edit_message_text(f"✅ Success! {channel['short_name']} has been added.")
     else:
         await query.edit_message_text("❌ Error! Could not add channel. It might already exist.")
-        
+    
+    await restore_default_commands(context, query.message.chat_id)
     context.user_data.clear()
     return ConversationHandler.END
 
@@ -230,30 +264,59 @@ async def confirm_add_channel(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 @restricted(allowed_roles=['owner'])
 async def remove_channel_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Starts the conversation to remove a channel."""
+    """Starts the conversation to remove a channel with button selection."""
+    from utils import set_conversation_commands
+    
+    # Set conversation commands
+    await set_conversation_commands(context, update.effective_chat.id)
+    
     channels = db.get_all_channels()
     if not channels:
         await update.message.reply_text("There are no channels to remove.")
         return ConversationHandler.END
 
-    message_text = "Current Channels:\n"
+    # Create buttons for each channel
+    buttons = []
     for channel in channels:
-        message_text += f"- {channel['short_name']} (ID: `{channel['channel_id']}`)\n"
-
-    message_text += "\nPlease enter the Channel ID or the Short Name of the channel you want to remove."
-    await update.message.reply_markdown_v2(message_text)
-    return ASK_CHANNEL_TO_REMOVE
-
-async def get_channel_to_remove(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Gets the identifier of the channel to be removed."""
-    identifier = update.message.text
-    success = db.remove_channel(identifier)
+        channel_name = f"{channel['channel_name']} ({channel['short_name']})"
+        # Clean channel_id for callback data
+        clean_id = channel['channel_id'].replace('@', '').replace('-', '_')
+        buttons.append([InlineKeyboardButton(channel_name, callback_data=f"remove_channel_{clean_id}")])
     
-    if success:
-        await update.message.reply_text(f"✅ Channel '{identifier}' has been removed successfully.")
-    else:
-        await update.message.reply_text(f"❌ Could not find a channel with identifier '{identifier}'. Please try again.")
+    # Add cancel button
+    buttons.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_remove_channel")])
+    
+    reply_markup = InlineKeyboardMarkup(buttons)
+    await update.message.reply_text("Select channel to remove:", reply_markup=reply_markup)
+    return CONFIRM_REMOVE_CHANNEL
 
+async def confirm_remove_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Confirms and removes the selected channel."""
+    query = update.callback_query
+    await query.answer()
+    
+    from utils import restore_default_commands
+    
+    if query.data == "cancel_remove_channel":
+        await restore_default_commands(context, query.message.chat_id)
+        await query.edit_message_text("❌ Channel removal cancelled.")
+        return ConversationHandler.END
+    
+    if query.data.startswith("remove_channel_"):
+        # Extract and reconstruct channel_id
+        clean_id = query.data.split("remove_channel_")[1]
+        original_id = clean_id.replace('_', '-')
+        if not original_id.startswith('@'):
+            original_id = '@' + original_id
+            
+        success = db.remove_channel(original_id)
+        
+        if success:
+            await query.edit_message_text(f"✅ Channel has been removed successfully.")
+        else:
+            await query.edit_message_text(f"❌ Could not remove channel. Please try again.")
+    
+    await restore_default_commands(context, query.message.chat_id)
     return ConversationHandler.END
 
 
@@ -326,7 +389,7 @@ add_admin_conv = ConversationHandler(
 remove_admin_conv = ConversationHandler(
     entry_points=[CommandHandler("removeadmin", remove_admin_start)],
     states={
-        ASK_ADMIN_TO_REMOVE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_admin_to_remove)],
+        CONFIRM_REMOVE_ADMIN: [CallbackQueryHandler(confirm_remove_admin, pattern='^(remove_admin_|cancel_remove_admin).*$')],
     },
     fallbacks=[CommandHandler('cancel', cancel_conversation)]
 )
@@ -344,7 +407,7 @@ add_channel_conv = ConversationHandler(
 remove_channel_conv = ConversationHandler(
     entry_points=[CommandHandler("removechannel", remove_channel_start)],
     states={
-        ASK_CHANNEL_TO_REMOVE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_channel_to_remove)],
+        CONFIRM_REMOVE_CHANNEL: [CallbackQueryHandler(confirm_remove_channel, pattern='^(remove_channel_|cancel_remove_channel).*$')],
     },
     fallbacks=[CommandHandler('cancel', cancel_conversation)]
 )
