@@ -21,7 +21,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pip install python-telegram-bot==20.7 && python main.py"
+args = "pip install --force-reinstall python-telegram-bot==20.7 && python main.py"
 
 [agent]
 expertMode = true
