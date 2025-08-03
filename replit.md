@@ -17,7 +17,15 @@ Preferred communication style: Simple, everyday language.
 - Updated dependency management for Replit compatibility
 - Bot application runs successfully with streamlined configuration
 
-### Recent Updates - August 2, 2025
+### Recent Updates - August 3, 2025
+- **Enhanced Welcome System**: Created comprehensive welcome messages matching help command quality
+  - Owner welcome: Complete management panel overview with all available powers
+  - Admin welcome: Detailed admin capabilities and responsibilities  
+  - User welcome: Full movie destination guide with features and download process
+- **Fixed CallbackQuery Error**: Updated @restricted decorator to properly handle both messages and callback queries
+- **Professional Message Formatting**: Structured layout with emojis, sections, and clear information hierarchy
+
+### Previous Updates - August 2, 2025
 - **Dynamic Command Menu System**: Implemented intelligent command menu management where:
   - Default: Only `/start` and `/help` commands visible in menu
   - During Conversations: `/cancel` automatically appears when user enters any conversation (movie request, add movie, etc.)

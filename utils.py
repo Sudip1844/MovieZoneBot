@@ -23,11 +23,18 @@ def restricted(allowed_roles: List[str]):
     """
     def decorator(func):
         async def wrapped(update: Update, context, *args, **kwargs):
-            user_id = update.effective_user.id
+            # Handle both regular messages and callback queries
+            if hasattr(update, 'callback_query') and update.callback_query:
+                user_id = update.callback_query.from_user.id
+                message = update.callback_query.message
+            else:
+                user_id = update.effective_user.id
+                message = update.message
+                
             user_role = db.get_user_role(user_id)
             
             if user_role not in allowed_roles:
-                await update.message.reply_text("❌ দুঃখিত, এই কমান্ডটি ব্যবহার করার অনুমতি আপনার নেই।")
+                await message.reply_text("❌ দুঃখিত, এই কমান্ডটি ব্যবহার করার অনুমতি আপনার নেই।")
                 logger.warning(f"Unauthorized access attempt by user {user_id} ({user_role}) for a '{', '.join(allowed_roles)}' command.")
                 return
             return await func(update, context, *args, **kwargs)

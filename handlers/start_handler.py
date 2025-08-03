@@ -61,12 +61,62 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_role = db.get_user_role(user.id)
     welcome_message = ""
     if user_role == 'owner':
-        welcome_message = f"👑 Welcome, Owner {user.mention_html()}!\n\nAll special commands are available on your keyboard. Ready to manage the bot."
+        welcome_message = f"""👑 Welcome Back, Owner {user.mention_html()}!
+
+🎬 MovieZone Bot Management Panel
+
+Available Powers:
+• 🎭 Movie Management - Add/Remove movies
+• 👥 Admin Control - Manage bot administrators  
+• 📢 Channel Management - Handle movie channels
+• 📊 Analytics - View detailed statistics
+• 🙏 User Requests - Review & process requests
+
+You have complete control over the bot ecosystem.
+Ready to manage your movie empire!"""
+        
     elif user_role == 'admin':
-        welcome_message = f"🛡️ Welcome, Admin {user.mention_html()}!\n\nYou can add movies, upload files, and view user requests."
+        welcome_message = f"""🛡️ Welcome Back, Admin {user.mention_html()}!
+
+🎬 MovieZone Bot Admin Panel
+
+Your Capabilities:
+• 🎭 Add Movies - Upload new content to database
+• 📊 View Requests - Handle user movie requests  
+• 🗑️ Remove Movies - Delete outdated content
+• 📈 Statistics - Monitor bot performance
+
+You can manage the movie library and assist users.
+Ready to serve the community!"""
+        
     else:
         # Standard welcome message for a regular user
-        welcome_message = f"👋 Welcome, {user.mention_html()}!\n\nWelcome to {BOT_USERNAME}. Here you can find your favorite Bengali, Hindi, and dubbed movies.\n\nJust search for a movie or browse our categories to get started!"
+        welcome_message = f"""🎬 Welcome to MovieZone, {user.mention_html()}!
+
+Your Ultimate Movie Destination
+
+What We Offer:
+🔍 Search Movies - Find any movie instantly
+📂 Browse Categories - Explore by genre & language  
+🙏 Request Movies - Ask for movies you can't find
+📥 Direct Downloads - Fast & secure downloads
+
+Movie Collection:
+• 🎭 Bollywood & Bengali Movies
+• 🧑‍🎤 Latest Hollywood Blockbusters
+• 🎪 South Indian Dubbed Movies  
+• 📺 Popular Web Series
+• 🎨 Animation & Kids Content
+
+Download Process:
+1. 🔍 Search or browse for your movie
+2. 📱 Select your preferred quality
+3. 👀 View a quick ad (helps us grow!)
+4. 📥 Download instantly!
+
+🚀 Ready to explore? Use the buttons below!
+
+Join our channel: @moviezone969"""
 
     keyboard = get_main_keyboard(user_role)
     await update.message.reply_html(welcome_message, reply_markup=keyboard)
