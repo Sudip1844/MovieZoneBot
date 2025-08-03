@@ -1,5 +1,5 @@
 {
-  "next_id": 5,
+  "next_id": 6,
   "requests": {
     "1": {
       "request_id": 1,
@@ -32,6 +32,13 @@
       "status": "accepted",
       "requested_at": "2025-08-02T16:25:12.016188",
       "updated_at": "2025-08-02T16:26:31.828960"
+    },
+    "5": {
+      "request_id": 5,
+      "user_id": 7778563160,
+      "movie_name": "📂 Browse Categories",
+      "status": "pending",
+      "requested_at": "2025-08-03T16:55:01.309597"
     }
   }
 }

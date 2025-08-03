@@ -33,12 +33,15 @@ Preferred communication style: Simple, everyday language.
   - Pagination with Previous/Next buttons for categories with 30+ movies
   - Back to Categories button for easy navigation
   - Long movie titles automatically truncated for clean display
-- **Enhanced Admin & Channel Management**: Complete button-based management system
+- **Enhanced Admin & Channel Management**: Complete button-based management system integrated into existing commands
+  - "👥 Manage Admins" button now includes: ➕ Add New Admin, ➖ Remove an Admin
+  - "📢 Manage Channels" button now includes: ➕ Add New Channel, ➖ Remove a Channel  
   - Add Admin: Forward message or send User ID, assign short name for easy reference
   - Remove Admin: Button selection from all existing admins with short names displayed
   - Add Channel: Enter Telegram channel link, assign short name for internal reference
   - Remove Channel: Button selection from all existing channels with short names displayed
   - Short name system allows easy identification and removal by nickname
+  - No separate commands needed - everything accessible through existing owner interface
 - **Movie Posting Automation**: Added channel selection step after movie preview
   - After movie preview, select multiple channels for automatic posting
   - Toggle channel selection with checkmarks for visual confirmation

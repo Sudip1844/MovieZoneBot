@@ -347,10 +347,22 @@ async def handle_admin_management(update: Update, context: ContextTypes.DEFAULT_
     
     if query.data == "admin_add":
         await query.edit_message_text("Starting add admin process...")
-        await add_admin_start(query, context)
+        # Create a fake update object for add_admin_start since it expects message not callback
+        fake_update = type('obj', (object,), {
+            'message': query.message,
+            'effective_chat': query.message.chat,
+            'effective_user': query.from_user
+        })()
+        await add_admin_start(fake_update, context)
     elif query.data == "admin_remove":
         await query.edit_message_text("Starting remove admin process...")
-        await remove_admin_start(query, context)
+        # Create a fake update object for remove_admin_start since it expects message not callback
+        fake_update = type('obj', (object,), {
+            'message': query.message,
+            'effective_chat': query.message.chat,
+            'effective_user': query.from_user
+        })()
+        await remove_admin_start(fake_update, context)
 
 async def handle_channel_management(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle channel management button callbacks."""
@@ -359,10 +371,22 @@ async def handle_channel_management(update: Update, context: ContextTypes.DEFAUL
     
     if query.data == "channel_add":
         await query.edit_message_text("Starting add channel process...")
-        await add_channel_start(query, context)
+        # Create a fake update object for add_channel_start since it expects message not callback
+        fake_update = type('obj', (object,), {
+            'message': query.message,
+            'effective_chat': query.message.chat,
+            'effective_user': query.from_user
+        })()
+        await add_channel_start(fake_update, context)
     elif query.data == "channel_remove":
         await query.edit_message_text("Starting remove channel process...")
-        await remove_channel_start(query, context)
+        # Create a fake update object for remove_channel_start since it expects message not callback
+        fake_update = type('obj', (object,), {
+            'message': query.message,
+            'effective_chat': query.message.chat,
+            'effective_user': query.from_user
+        })()
+        await remove_channel_start(fake_update, context)
 
 async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Generic cancellation function."""
@@ -419,8 +443,6 @@ owner_handlers = [
     remove_admin_conv,
     add_channel_conv,
     remove_channel_conv,
-    CommandHandler("manageadmins", manage_admins),
-    CommandHandler("managechannels", manage_channels),
     MessageHandler(filters.Regex("^👥 Manage Admins$"), manage_admins),
     MessageHandler(filters.Regex("^📢 Manage Channels$"), manage_channels),
     CallbackQueryHandler(handle_admin_management, pattern="^admin_"),
