@@ -29,6 +29,11 @@ Preferred communication style: Simple, everyday language.
   - Added bot access verification before adding channels to database
   - Clear error messages guide users to use proper @username format
   - Bot now tests channel permissions during channel addition process
+- **Fixed Admin/Channel Removal System**: Enhanced remove functionality with proper callback handling
+  - Added callback query entry points for remove admin and remove channel conversations
+  - Fixed "Unhandled callback prefix" errors for admin_remove and channel_remove buttons
+  - Modified display to show only short names in removal lists (as requested by user)
+  - Remove buttons now properly trigger conversation handlers from inline buttons
 
 ### Previous Updates - August 3, 2025
 - **Enhanced Welcome System**: Created comprehensive welcome messages matching help command quality

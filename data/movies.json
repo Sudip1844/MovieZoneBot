@@ -1,5 +1,5 @@
 {
-  "next_id": 4,
+  "next_id": 5,
   "movies": {
     "1": {
       "added_by": 5379553841,
@@ -76,6 +76,32 @@
       "next_episode": 2,
       "movie_id": 3,
       "added_at": "2025-08-03T17:50:35.189415",
+      "download_count": 0
+    },
+    "4": {
+      "added_by": 5379553841,
+      "categories": [
+        "💥 Action",
+        "🎨 Animation"
+      ],
+      "languages": [
+        "Korean"
+      ],
+      "files": {
+        "E01": [
+          "BAACAgUAAxkBAAIEq2iPoVOy7hE1gZfQvXqWQdo2pzb1AAK9GwACKMF5VO2MQo1guGpUNgQ",
+          "AgADvRsAAijBeVQ"
+        ]
+      },
+      "thumbnail_file_id": "AgACAgUAAxkBAAIEoWiPoQABIzBa9raEQC6rTGOl9ChGzQACqsoxGyjBeVRaSD--AAE6zTQBAAMCAAN4AAM2BA",
+      "title": "Hg",
+      "release_year": "২৩",
+      "runtime": "২.৩৪",
+      "imdb_rating": "৬",
+      "is_series": true,
+      "next_episode": 2,
+      "movie_id": 4,
+      "added_at": "2025-08-03T18:00:13.921670",
       "download_count": 0
     }
   }

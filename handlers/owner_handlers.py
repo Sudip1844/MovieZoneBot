@@ -141,25 +141,50 @@ async def remove_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE)
     """Starts the conversation to remove an admin with button selection."""
     from utils import set_conversation_commands
     
-    # Set conversation commands
-    await set_conversation_commands(context, update.effective_chat.id)
-    
-    admins = db.get_all_admins()
-    if not admins:
-        await update.message.reply_text("There are no admins to remove.")
-        return ConversationHandler.END
+    # Handle both message and callback query
+    if update.callback_query:
+        query = update.callback_query
+        await query.answer()
+        # Set conversation commands
+        await set_conversation_commands(context, query.message.chat_id)
+        
+        admins = db.get_all_admins()
+        if not admins:
+            await query.edit_message_text("There are no admins to remove.")
+            return ConversationHandler.END
 
-    # Create buttons for each admin
-    buttons = []
-    for admin in admins:
-        admin_name = f"{admin['first_name']} ({admin['short_name']})"
-        buttons.append([InlineKeyboardButton(admin_name, callback_data=f"remove_admin_{admin['user_id']}")])
+        # Create buttons for each admin - only show short name as requested
+        buttons = []
+        for admin in admins:
+            admin_display = admin['short_name']  # Only use short name as requested
+            buttons.append([InlineKeyboardButton(admin_display, callback_data=f"remove_admin_{admin['user_id']}")])
+        
+        # Add cancel button
+        buttons.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_remove_admin")])
+        
+        reply_markup = InlineKeyboardMarkup(buttons)
+        await query.edit_message_text("Select admin to remove:", reply_markup=reply_markup)
+    else:
+        # Set conversation commands
+        await set_conversation_commands(context, update.effective_chat.id)
+        
+        admins = db.get_all_admins()
+        if not admins:
+            await update.message.reply_text("There are no admins to remove.")
+            return ConversationHandler.END
+
+        # Create buttons for each admin - only show short name as requested
+        buttons = []
+        for admin in admins:
+            admin_display = admin['short_name']  # Only use short name as requested
+            buttons.append([InlineKeyboardButton(admin_display, callback_data=f"remove_admin_{admin['user_id']}")])
+        
+        # Add cancel button
+        buttons.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_remove_admin")])
+        
+        reply_markup = InlineKeyboardMarkup(buttons)
+        await update.message.reply_text("Select admin to remove:", reply_markup=reply_markup)
     
-    # Add cancel button
-    buttons.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_remove_admin")])
-    
-    reply_markup = InlineKeyboardMarkup(buttons)
-    await update.message.reply_text("Select admin to remove:", reply_markup=reply_markup)
     return CONFIRM_REMOVE_ADMIN
 
 async def confirm_remove_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -312,27 +337,54 @@ async def remove_channel_start(update: Update, context: ContextTypes.DEFAULT_TYP
     """Starts the conversation to remove a channel with button selection."""
     from utils import set_conversation_commands
     
-    # Set conversation commands
-    await set_conversation_commands(context, update.effective_chat.id)
-    
-    channels = db.get_all_channels()
-    if not channels:
-        await update.message.reply_text("There are no channels to remove.")
-        return ConversationHandler.END
+    # Handle both message and callback query
+    if update.callback_query:
+        query = update.callback_query
+        await query.answer()
+        # Set conversation commands
+        await set_conversation_commands(context, query.message.chat_id)
+        
+        channels = db.get_all_channels()
+        if not channels:
+            await query.edit_message_text("There are no channels to remove.")
+            return ConversationHandler.END
 
-    # Create buttons for each channel
-    buttons = []
-    for channel in channels:
-        channel_name = f"{channel['channel_name']} ({channel['short_name']})"
-        # Clean channel_id for callback data
-        clean_id = channel['channel_id'].replace('@', '').replace('-', '_')
-        buttons.append([InlineKeyboardButton(channel_name, callback_data=f"remove_channel_{clean_id}")])
+        # Create buttons for each channel - only show short name as requested
+        buttons = []
+        for channel in channels:
+            channel_display = channel['short_name']  # Only use short name as requested
+            # Clean channel_id for callback data
+            clean_id = channel['channel_id'].replace('@', '').replace('-', '_')
+            buttons.append([InlineKeyboardButton(channel_display, callback_data=f"remove_channel_{clean_id}")])
+        
+        # Add cancel button
+        buttons.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_remove_channel")])
+        
+        reply_markup = InlineKeyboardMarkup(buttons)
+        await query.edit_message_text("Select channel to remove:", reply_markup=reply_markup)
+    else:
+        # Set conversation commands
+        await set_conversation_commands(context, update.effective_chat.id)
+        
+        channels = db.get_all_channels()
+        if not channels:
+            await update.message.reply_text("There are no channels to remove.")
+            return ConversationHandler.END
+
+        # Create buttons for each channel - only show short name as requested
+        buttons = []
+        for channel in channels:
+            channel_display = channel['short_name']  # Only use short name as requested
+            # Clean channel_id for callback data
+            clean_id = channel['channel_id'].replace('@', '').replace('-', '_')
+            buttons.append([InlineKeyboardButton(channel_display, callback_data=f"remove_channel_{clean_id}")])
+        
+        # Add cancel button
+        buttons.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_remove_channel")])
+        
+        reply_markup = InlineKeyboardMarkup(buttons)
+        await update.message.reply_text("Select channel to remove:", reply_markup=reply_markup)
     
-    # Add cancel button
-    buttons.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_remove_channel")])
-    
-    reply_markup = InlineKeyboardMarkup(buttons)
-    await update.message.reply_text("Select channel to remove:", reply_markup=reply_markup)
     return CONFIRM_REMOVE_CHANNEL
 
 async def confirm_remove_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -459,7 +511,10 @@ add_admin_conv = ConversationHandler(
 )
 
 remove_admin_conv = ConversationHandler(
-    entry_points=[CommandHandler("removeadmin", remove_admin_start)],
+    entry_points=[
+        CommandHandler("removeadmin", remove_admin_start),
+        CallbackQueryHandler(remove_admin_start, pattern='^admin_remove$')
+    ],
     states={
         CONFIRM_REMOVE_ADMIN: [CallbackQueryHandler(confirm_remove_admin, pattern='^(remove_admin_|cancel_remove_admin).*$')],
     },
@@ -480,7 +535,10 @@ add_channel_conv = ConversationHandler(
 )
 
 remove_channel_conv = ConversationHandler(
-    entry_points=[CommandHandler("removechannel", remove_channel_start)],
+    entry_points=[
+        CommandHandler("removechannel", remove_channel_start),
+        CallbackQueryHandler(remove_channel_start, pattern='^channel_remove$')
+    ],
     states={
         CONFIRM_REMOVE_CHANNEL: [CallbackQueryHandler(confirm_remove_channel, pattern='^(remove_channel_|cancel_remove_channel).*$')],
     },
