@@ -100,7 +100,7 @@ async def get_admin_short_name(update: Update, context: ContextTypes.DEFAULT_TYP
     )
     keyboard = [[InlineKeyboardButton("✅ Confirm", callback_data="confirm_add_admin")],
                 [InlineKeyboardButton("❌ Cancel", callback_data="cancel_add_admin")]]
-    await update.message.reply_markdown_v2(text, reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
     return CONFIRM_ADD_ADMIN
 
 async def confirm_add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -249,7 +249,7 @@ async def get_channel_short_name(update: Update, context: ContextTypes.DEFAULT_T
     )
     keyboard = [[InlineKeyboardButton("✅ Confirm", callback_data="confirm_add_channel")],
                 [InlineKeyboardButton("❌ Cancel", callback_data="cancel_add_channel")]]
-    await update.message.reply_markdown_v2(text, reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
     return CONFIRM_ADD_CHANNEL
 
 async def confirm_add_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

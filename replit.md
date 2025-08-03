@@ -21,6 +21,7 @@ Preferred communication style: Simple, everyday language.
   - Modified conversation handlers to properly handle callback query entry points
   - Updated text search handler to not interfere with ongoing conversations
   - Admin and channel addition now works correctly from inline buttons
+  - Fixed MarkdownV2 parsing errors in confirmation messages by switching to plain text format
 
 ### Recent Updates - August 3, 2025
 - **Enhanced Welcome System**: Created comprehensive welcome messages matching help command quality
