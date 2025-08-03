@@ -34,6 +34,11 @@ Preferred communication style: Simple, everyday language.
   - Fixed "Unhandled callback prefix" errors for admin_remove and channel_remove buttons
   - Modified display to show only short names in removal lists (as requested by user)
   - Remove buttons now properly trigger conversation handlers from inline buttons
+- **Enhanced Help Command & Dynamic Menu System**: Improved user interface and command management
+  - Removed confusing `/command` format from help messages - now shows feature names with emojis
+  - Enhanced dynamic command menu to show only `/cancel` during conversations (hiding all other commands)
+  - Commands automatically restore to default (`/start`, `/help`) when conversations end
+  - Applies to all conversations: add/remove admin, add/remove channel, add movie, request movie, etc.
 
 ### Previous Updates - August 3, 2025
 - **Enhanced Welcome System**: Created comprehensive welcome messages matching help command quality

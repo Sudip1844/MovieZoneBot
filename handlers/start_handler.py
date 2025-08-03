@@ -130,24 +130,24 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if user_role == 'owner':
         help_text = """❓ Owner Help & Commands
 
-Available Commands:
-• /addmovie - Add new movie or series
-• /showrequests - View user movie requests  
-• /manageadmins - Add or remove admins
-• /managechannels - Add or remove channels
-• /removemovie - Delete movies from database
-• /showstats - View movie statistics
+Available Features:
+• ➕ Add Movie - Add new movie or series
+• 📊 Show Requests - View user movie requests  
+• 👥 Manage Admins - Add or remove admins
+• 📢 Manage Channels - Add or remove channels
+• 🗑️ Remove Movie - Delete movies from database
+• 📈 Show Stats - View movie statistics
 
 You have full access to all bot features and can manage admins and channels."""
         
     elif user_role == 'admin':
         help_text = """❓ Admin Help & Commands
 
-Available Commands:
-• /addmovie - Add new movie or series
-• /showrequests - View and manage user requests
-• /removemovie - Delete movies from database  
-• /showstats - View movie statistics
+Available Features:
+• ➕ Add Movie - Add new movie or series
+• 📊 Show Requests - View and manage user requests
+• 🗑️ Remove Movie - Delete movies from database  
+• 📈 Show Stats - View movie statistics
 
 You can manage movies and handle user requests."""
         

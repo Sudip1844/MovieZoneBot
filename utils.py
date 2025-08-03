@@ -161,11 +161,9 @@ def get_movie_search_results_markup(movies: List[dict]) -> InlineKeyboardMarkup:
 
 # --- Dynamic Bot Commands Management ---
 async def set_conversation_commands(context, chat_id: int):
-    """Set commands when user enters a conversation."""
+    """Set commands when user enters a conversation - only show cancel."""
     from telegram import BotCommand
     commands = [
-        BotCommand("start", "Start the bot"),
-        BotCommand("help", "Get help and instructions"),
         BotCommand("cancel", "Cancel current operation")
     ]
     try:
