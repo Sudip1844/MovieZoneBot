@@ -17,6 +17,10 @@ Preferred communication style: Simple, everyday language.
 - BOT_TOKEN now hardcoded in config.py for direct access (user preference for public GitHub repo)
 - Updated dependency management for Replit compatibility
 - Bot application runs successfully with streamlined configuration
+- **Fixed Admin/Channel Management**: Resolved conversation handler conflicts with search functionality
+  - Modified conversation handlers to properly handle callback query entry points
+  - Updated text search handler to not interfere with ongoing conversations
+  - Admin and channel addition now works correctly from inline buttons
 
 ### Recent Updates - August 3, 2025
 - **Enhanced Welcome System**: Created comprehensive welcome messages matching help command quality

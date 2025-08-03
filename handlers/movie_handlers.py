@@ -35,6 +35,10 @@ async def handle_search_query(update: Update, context: ContextTypes.DEFAULT_TYPE
     if query.startswith('/'):
         return
     
+    # Check if user is in a conversation - if so, don't handle as search
+    if context.user_data and ('conversation_state' in context.user_data or 'new_admin' in context.user_data or 'new_channel' in context.user_data):
+        return
+    
     logger.info(f"User {update.effective_user.id} searched for: {query}")
     
     movies = db.search_movies(query, limit=10)

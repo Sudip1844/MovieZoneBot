@@ -35,14 +35,25 @@ async def add_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     """Starts the conversation to add a new admin."""
     from utils import set_conversation_commands
     
-    # Set conversation commands
-    await set_conversation_commands(context, update.effective_chat.id)
-    
-    await update.message.reply_text(
-        "Please forward a message from the user you want to make an admin.\n"
-        "Or, send their Telegram User ID.\n\n"
-        "To cancel, type /cancel."
-    )
+    # Handle both message and callback query
+    if update.callback_query:
+        query = update.callback_query
+        await query.answer()
+        # Set conversation commands
+        await set_conversation_commands(context, query.message.chat_id)
+        await query.edit_message_text(
+            "Please forward a message from the user you want to make an admin.\n"
+            "Or, send their Telegram User ID.\n\n"
+            "To cancel, type /cancel."
+        )
+    else:
+        # Set conversation commands
+        await set_conversation_commands(context, update.effective_chat.id)
+        await update.message.reply_text(
+            "Please forward a message from the user you want to make an admin.\n"
+            "Or, send their Telegram User ID.\n\n"
+            "To cancel, type /cancel."
+        )
     return GET_ADMIN_USERID
 
 async def get_admin_userid(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -183,13 +194,23 @@ async def add_channel_start(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     """Starts the conversation to add a new channel."""
     from utils import set_conversation_commands
     
-    # Set conversation commands
-    await set_conversation_commands(context, update.effective_chat.id)
-    
-    await update.message.reply_text(
-        "Please send the channel or group link (e.g., https://t.me/moviezone969).\n\n"
-        "To cancel, type /cancel."
-    )
+    # Handle both message and callback query
+    if update.callback_query:
+        query = update.callback_query
+        await query.answer()
+        # Set conversation commands
+        await set_conversation_commands(context, query.message.chat_id)
+        await query.edit_message_text(
+            "Please send the channel or group link (e.g., https://t.me/moviezone969).\n\n"
+            "To cancel, type /cancel."
+        )
+    else:
+        # Set conversation commands
+        await set_conversation_commands(context, update.effective_chat.id)
+        await update.message.reply_text(
+            "Please send the channel or group link (e.g., https://t.me/moviezone969).\n\n"
+            "To cancel, type /cancel."
+        )
     return GET_CHANNEL_LINK
 
 async def get_channel_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -401,7 +422,10 @@ async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 # Conversation Handlers
 add_admin_conv = ConversationHandler(
-    entry_points=[CommandHandler("addadmin", add_admin_start)],
+    entry_points=[
+        CommandHandler("addadmin", add_admin_start),
+        CallbackQueryHandler(add_admin_start, pattern='^admin_add$')
+    ],
     states={
         GET_ADMIN_USERID: [MessageHandler(filters.TEXT | filters.FORWARDED, get_admin_userid)],
         GET_ADMIN_SHORT_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_admin_short_name)],
@@ -419,7 +443,10 @@ remove_admin_conv = ConversationHandler(
 )
 
 add_channel_conv = ConversationHandler(
-    entry_points=[CommandHandler("addchannel", add_channel_start)],
+    entry_points=[
+        CommandHandler("addchannel", add_channel_start),
+        CallbackQueryHandler(add_channel_start, pattern='^channel_add$')
+    ],
     states={
         GET_CHANNEL_LINK: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_channel_link)],
         GET_CHANNEL_SHORT_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_channel_short_name)],
@@ -445,6 +472,5 @@ owner_handlers = [
     remove_channel_conv,
     MessageHandler(filters.Regex("^👥 Manage Admins$"), manage_admins),
     MessageHandler(filters.Regex("^📢 Manage Channels$"), manage_channels),
-    CallbackQueryHandler(handle_admin_management, pattern="^admin_"),
-    CallbackQueryHandler(handle_channel_management, pattern="^channel_")
+    CallbackQueryHandler(handle_channel_management, pattern="^channel_remove$")
 ]
