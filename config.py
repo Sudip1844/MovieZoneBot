@@ -3,8 +3,8 @@
 import os
 
 # --- Telegram Bot Configuration ---
-# Your Telegram bot token from BotFather - must be set as environment variable
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+# Your Telegram bot token from BotFather - hardcoded for direct access
+BOT_TOKEN = "7489158288:AAG3r41T8kG4O01BpBeICApd28p9g4DJJ4A"
 
 # আপনার বটের ইউজারনেম (t.me/YourBotUsername) - আপনার দেওয়া ছবি অনুযায়ী
 BOT_USERNAME = "MoviezoneDownloadbot"

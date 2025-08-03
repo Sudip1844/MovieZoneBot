@@ -10,12 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Migration Status
 
-**Migration to Replit Completed**: August 2, 2025
+**Migration to Replit Completed**: August 3, 2025
 - Successfully migrated from Replit Agent to standard Replit environment
 - Fixed package conflicts between telegram and python-telegram-bot packages
-- Secured bot token configuration (removed hardcoded credentials)
+- BOT_TOKEN now hardcoded in config.py for direct access (user preference for public GitHub repo)
 - Updated dependency management for Replit compatibility
-- Bot application now runs successfully with proper security practices
+- Bot application runs successfully with streamlined configuration
 
 ### Recent Updates - August 2, 2025
 - **Dynamic Command Menu System**: Implemented intelligent command menu management where:
