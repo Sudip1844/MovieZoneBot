@@ -220,18 +220,42 @@ async def get_channel_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     # Extract channel username from link
     if "t.me/" in channel_link:
         channel_username = channel_link.split("t.me/")[-1].replace("@", "")
+        
+        # Check if it's a private channel link (contains + or joinchat)
+        if "+" in channel_username or "joinchat/" in channel_link:
+            await update.message.reply_text(
+                "❌ Private channel links are not supported.\n\n"
+                "Please add the bot to your channel first, then use the channel's @username instead.\n"
+                "Example: https://t.me/moviezone969"
+            )
+            return GET_CHANNEL_LINK
+        
         channel_id = f"@{channel_username}"
+        
+        # Try to get channel info to verify bot has access
+        try:
+            chat = await context.bot.get_chat(channel_id)
+            channel_name = chat.title or channel_username
+        except Exception as e:
+            await update.message.reply_text(
+                f"❌ Cannot access channel {channel_id}.\n\n"
+                "Please make sure:\n"
+                "1. The channel exists\n"
+                "2. The bot is added to the channel\n"
+                "3. The bot has 'Post Messages' permission"
+            )
+            return GET_CHANNEL_LINK
     else:
         await update.message.reply_text("Invalid channel link. Please send a valid Telegram channel link.")
         return GET_CHANNEL_LINK
     
     context.user_data['new_channel'] = {
         'channel_id': channel_id,
-        'channel_name': channel_username,
+        'channel_name': channel_name,
         'link': channel_link
     }
     
-    await update.message.reply_text(f"Channel found: {channel_id}\n\nNow, please provide a short name for this channel (e.g., 'Main Channel'). This will be used for internal reference.")
+    await update.message.reply_text(f"Channel found: {channel_name} ({channel_id})\n\nNow, please provide a short name for this channel (e.g., 'Main Channel'). This will be used for internal reference.")
     return GET_CHANNEL_SHORT_NAME
 
 async def get_channel_short_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

@@ -1,5 +1,5 @@
 {
-  "next_id": 3,
+  "next_id": 4,
   "movies": {
     "1": {
       "added_by": 5379553841,
@@ -50,6 +50,32 @@
       "is_series": false,
       "movie_id": 2,
       "added_at": "2025-08-02T15:01:20.165418",
+      "download_count": 0
+    },
+    "3": {
+      "added_by": 5379553841,
+      "categories": [
+        "🏮 K-Drama",
+        "😂 Comedy"
+      ],
+      "languages": [
+        "Bengali"
+      ],
+      "files": {
+        "E01": [
+          "BAACAgUAAxkBAAIEq2iPoVOy7hE1gZfQvXqWQdo2pzb1AAK9GwACKMF5VO2MQo1guGpUNgQ",
+          "AgADvRsAAijBeVQ"
+        ]
+      },
+      "thumbnail_file_id": "AgACAgUAAxkBAAIEoWiPoQABIzBa9raEQC6rTGOl9ChGzQACqsoxGyjBeVRaSD--AAE6zTQBAAMCAAN4AAM2BA",
+      "title": "Hi",
+      "release_year": "2023",
+      "runtime": "2.13",
+      "imdb_rating": "6",
+      "is_series": true,
+      "next_episode": 2,
+      "movie_id": 3,
+      "added_at": "2025-08-03T17:50:35.189415",
       "download_count": 0
     }
   }

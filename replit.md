@@ -24,6 +24,13 @@ Preferred communication style: Simple, everyday language.
   - Fixed MarkdownV2 parsing errors in confirmation messages by switching to plain text format
 
 ### Recent Updates - August 3, 2025
+- **Fixed Movie Posting to Channels**: Enhanced channel link validation system
+  - Private channel links (containing + or joinchat) are now properly rejected
+  - Added bot access verification before adding channels to database
+  - Clear error messages guide users to use proper @username format
+  - Bot now tests channel permissions during channel addition process
+
+### Previous Updates - August 3, 2025
 - **Enhanced Welcome System**: Created comprehensive welcome messages matching help command quality
   - Owner welcome: Complete management panel overview with all available powers
   - Admin welcome: Detailed admin capabilities and responsibilities  

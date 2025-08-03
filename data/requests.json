@@ -37,8 +37,9 @@
       "request_id": 5,
       "user_id": 7778563160,
       "movie_name": "📂 Browse Categories",
-      "status": "pending",
-      "requested_at": "2025-08-03T16:55:01.309597"
+      "status": "deleted",
+      "requested_at": "2025-08-03T16:55:01.309597",
+      "updated_at": "2025-08-03T17:45:20.539107"
     }
   }
 }
