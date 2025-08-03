@@ -52,10 +52,13 @@ def build_selection_keyboard(options: list, selected_options: set) -> InlineKeyb
 @restricted(allowed_roles=['owner', 'admin'])
 async def add_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """ /addmovie কমান্ড দিয়ে কথোপকথন শুরু করে। """
-    from utils import set_conversation_commands
+    from utils import set_conversation_keyboard
+    import database as db
     
-    # Set conversation commands
-    await set_conversation_commands(context, update.effective_chat.id)
+    user_role = db.get_user_role(update.effective_user.id)
+    
+    # Set conversation keyboard with cancel button
+    keyboard = await set_conversation_keyboard(update, context, user_role)
     
     # আগের কোনো ডেটা থাকলে তা পরিষ্কার করে
     context.user_data.pop('movie_data', None)
@@ -69,7 +72,8 @@ async def add_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     await update.message.reply_text(
         "🎬 Add New Movie/Series\n\n"
         "Step 1: Please send the thumbnail for the movie (as a photo).\n\n"
-        "To cancel at any time, type /cancel."
+        "To cancel at any time, press ❌ Cancel button.",
+        reply_markup=keyboard
     )
     return GET_THUMBNAIL
 
@@ -386,7 +390,13 @@ async def select_channels(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """কথোপকথন বাতিল করে।"""
-    await update.message.reply_text("Movie addition cancelled.", reply_markup=ReplyKeyboardRemove())
+    from utils import restore_main_keyboard
+    import database as db
+    
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await restore_main_keyboard(update, context, user_role)
+    
+    await update.message.reply_text("❌ Movie addition cancelled.", reply_markup=keyboard)
     context.user_data.clear()
     return ConversationHandler.END
 
@@ -409,6 +419,9 @@ add_movie_conv_handler = ConversationHandler(
         UPLOAD_SERIES_FILES: [MessageHandler(filters.TEXT | filters.ATTACHMENT, upload_series_files)],
         SELECT_CHANNELS: [CallbackQueryHandler(select_channels, pattern="^(channel_|post_now|cancel_post)")]
     },
-    fallbacks=[CommandHandler('cancel', cancel_conversation)],
+    fallbacks=[
+        CommandHandler('cancel', cancel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+    ],
     conversation_timeout=CONVERSATION_TIMEOUT
 )

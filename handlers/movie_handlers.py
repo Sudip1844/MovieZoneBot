@@ -110,15 +110,16 @@ async def browse_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def request_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the movie request conversation."""
-    from utils import set_conversation_commands
+    from utils import set_conversation_keyboard
     
-    # Set conversation commands
-    await set_conversation_commands(context, update.effective_chat.id)
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await set_conversation_keyboard(update, context, user_role)
     
     await update.message.reply_text(
         "🙏 Request a Movie\n\n"
         "Please tell me the name of the movie you want to request:\n\n"
-        "To cancel, type /cancel."
+        "To cancel, press ❌ Cancel button.",
+        reply_markup=keyboard
     )
     return REQUEST_MOVIE_NAME
 
@@ -147,16 +148,18 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     else:
         # Movie not found, add to requests
         request_id = db.add_movie_request(user_id, movie_name)
-        from utils import restore_default_commands
+        from utils import restore_main_keyboard
         
-        # Restore default commands
-        await restore_default_commands(context, update.effective_chat.id)
+        # Restore main keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
         
         await update.message.reply_text(
             f"✅ Request Submitted!\n\n"
             f"Your request for '{movie_name}' has been submitted to our admins.\n"
             f"Request ID: {request_id}\n\n"
-            "You'll be notified when the movie is uploaded. Thank you for your patience!"
+            "You'll be notified when the movie is uploaded. Thank you for your patience!",
+            reply_markup=keyboard
         )
         return ConversationHandler.END
 
@@ -224,15 +227,16 @@ async def show_requests(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 @restricted(allowed_roles=['owner', 'admin'])
 async def remove_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the remove movie conversation."""
-    from utils import set_conversation_commands
+    from utils import set_conversation_keyboard
     
-    # Set conversation commands
-    await set_conversation_commands(context, update.effective_chat.id)
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await set_conversation_keyboard(update, context, user_role)
     
     await update.message.reply_text(
         "🗑️ Remove Movie\n\n"
         "Please enter the name of the movie you want to remove:\n\n"
-        "To cancel, type /cancel."
+        "To cancel, press ❌ Cancel button.",
+        reply_markup=keyboard
     )
     return DELETE_MOVIE_NAME
 
@@ -322,15 +326,16 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
 @restricted(allowed_roles=['owner', 'admin'])
 async def show_stats_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the show stats conversation."""
-    from utils import set_conversation_commands
+    from utils import set_conversation_keyboard
     
-    # Set conversation commands
-    await set_conversation_commands(context, update.effective_chat.id)
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await set_conversation_keyboard(update, context, user_role)
     
     await update.message.reply_text(
         "📊 Movie Statistics\n\n"
         "Please enter the name of the movie to see its statistics:\n\n"
-        "To cancel, type /cancel."
+        "To cancel, press ❌ Cancel button.",
+        reply_markup=keyboard
     )
     return SHOW_STATS_MOVIE_NAME
 
@@ -395,12 +400,12 @@ async def handle_stats_callback(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel any ongoing conversation."""
-    from utils import restore_default_commands
+    from utils import restore_main_keyboard
     
-    # Restore default commands
-    await restore_default_commands(context, update.effective_chat.id)
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await restore_main_keyboard(update, context, user_role)
     
-    await update.message.reply_text("❌ Action cancelled.")
+    await update.message.reply_text("❌ Action cancelled.", reply_markup=keyboard)
     context.user_data.clear()
     return ConversationHandler.END
 
@@ -416,7 +421,10 @@ request_movie_conv = ConversationHandler(
             CallbackQueryHandler(force_request_movie, pattern="^force_request$")
         ]
     },
-    fallbacks=[CommandHandler('cancel', cancel_conversation)]
+    fallbacks=[
+        CommandHandler('cancel', cancel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+    ]
 )
 
 remove_movie_conv = ConversationHandler(
@@ -427,7 +435,10 @@ remove_movie_conv = ConversationHandler(
             CallbackQueryHandler(confirm_movie_deletion, pattern="^(confirm_delete|cancel_delete|delete_)")
         ]
     },
-    fallbacks=[CommandHandler('cancel', cancel_conversation)]
+    fallbacks=[
+        CommandHandler('cancel', cancel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+    ]
 )
 
 show_stats_conv = ConversationHandler(
@@ -438,7 +449,10 @@ show_stats_conv = ConversationHandler(
             CallbackQueryHandler(handle_stats_callback, pattern="^stats_")
         ]
     },
-    fallbacks=[CommandHandler('cancel', cancel_conversation)]
+    fallbacks=[
+        CommandHandler('cancel', cancel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+    ]
 )
 
 # Main handler list to be imported
