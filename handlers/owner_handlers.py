@@ -150,6 +150,11 @@ async def get_admin_to_remove(update: Update, context: ContextTypes.DEFAULT_TYPE
 @restricted(allowed_roles=['owner'])
 async def add_channel_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to add a new channel."""
+    from utils import set_conversation_commands
+    
+    # Set conversation commands
+    await set_conversation_commands(context, update.effective_chat.id)
+    
     await update.message.reply_text(
         "Please send the channel or group link (e.g., https://t.me/moviezone969).\n\n"
         "To cancel, type /cancel."
@@ -298,6 +303,11 @@ async def handle_channel_management(update: Update, context: ContextTypes.DEFAUL
 
 async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Generic cancellation function."""
+    from utils import restore_default_commands
+    
+    # Restore default commands
+    await restore_default_commands(context, update.effective_chat.id)
+    
     await update.message.reply_text("Action cancelled.", reply_markup=ReplyKeyboardRemove())
     context.user_data.clear()
     return ConversationHandler.END

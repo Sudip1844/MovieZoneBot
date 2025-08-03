@@ -23,6 +23,10 @@ Preferred communication style: Simple, everyday language.
   - Admin welcome: Detailed admin capabilities and responsibilities  
   - User welcome: Full movie destination guide with features and download process
 - **Fixed CallbackQuery Error**: Updated @restricted decorator to properly handle both messages and callback queries
+- **Dynamic Command Menu System**: Fixed and enhanced command menu management
+  - When conversations start: /cancel command appears in command menu, other commands hide
+  - When conversations end: Command menu reverts to default (/start, /help)
+  - Applies to all conversations: movie requests, add movie, admin management, channel management
 - **Professional Message Formatting**: Structured layout with emojis, sections, and clear information hierarchy
 
 ### Previous Updates - August 2, 2025

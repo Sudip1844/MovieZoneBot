@@ -169,6 +169,10 @@ async def force_request_movie(update: Update, context: ContextTypes.DEFAULT_TYPE
     user_id = query.from_user.id
     request_id = db.add_movie_request(user_id, movie_name)
     
+    from utils import restore_default_commands
+    # Restore default commands
+    await restore_default_commands(context, query.message.chat_id)
+    
     await query.edit_message_text(
         f"✅ Request Submitted!\n\n"
         f"Your request for '{movie_name}' has been submitted to our admins.\n"
@@ -278,6 +282,8 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
     await query.answer()
     
     if query.data == "cancel_delete":
+        from utils import restore_default_commands
+        await restore_default_commands(context, query.message.chat_id)
         await query.edit_message_text("❌ Movie deletion cancelled.")
         return ConversationHandler.END
     elif query.data == "confirm_delete":
@@ -290,6 +296,9 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
                 await query.edit_message_text("❌ Failed to delete the movie. Please try again.")
         else:
             await query.edit_message_text("❌ Error: Movie information not found.")
+        
+        from utils import restore_default_commands
+        await restore_default_commands(context, query.message.chat_id)
         return ConversationHandler.END
     elif query.data.startswith("delete_"):
         movie_id = int(query.data.split("_")[1])
@@ -376,6 +385,8 @@ async def handle_stats_callback(update: Update, context: ContextTypes.DEFAULT_TY
         else:
             await query.edit_message_text("❌ Error: Movie not found.")
     
+    from utils import restore_default_commands
+    await restore_default_commands(context, query.message.chat_id)
     return ConversationHandler.END
 
 async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
