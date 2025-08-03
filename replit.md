@@ -27,6 +27,12 @@ Preferred communication style: Simple, everyday language.
   - When conversations start: /cancel command appears in command menu, other commands hide
   - When conversations end: Command menu reverts to default (/start, /help)
   - Applies to all conversations: movie requests, add movie, admin management, channel management
+- **Browse Categories Grid Layout**: Implemented clean 3×10 grid format for category browsing
+  - Movies display in 3-column rows (maximum 30 movies per page)
+  - No separate text messages - only inline button grid
+  - Pagination with Previous/Next buttons for categories with 30+ movies
+  - Back to Categories button for easy navigation
+  - Long movie titles automatically truncated for clean display
 - **Professional Message Formatting**: Structured layout with emojis, sections, and clear information hierarchy
 
 ### Previous Updates - August 2, 2025

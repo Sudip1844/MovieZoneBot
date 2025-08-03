@@ -195,17 +195,22 @@ def search_movies(query: str, limit: int = 10) -> List[Dict]:
     
     return results
 
-def get_movies_by_category(category: str, limit: int = 10) -> List[Dict]:
-    """Get movies by category."""
+def get_movies_by_category(category: str, limit: int = 10, offset: int = 0) -> List[Dict]:
+    """Get movies by category with pagination support."""
     movies = load_json(MOVIES_FILE)
     results = []
     
+    # First collect all matching movies
+    all_matching = []
     for movie_data in movies["movies"].values():
         categories = movie_data.get("categories", [])
         if category in categories:
-            results.append(movie_data)
-            if len(results) >= limit:
-                break
+            all_matching.append(movie_data)
+    
+    # Apply offset and limit
+    start_index = offset
+    end_index = offset + limit
+    results = all_matching[start_index:end_index]
     
     return results
 

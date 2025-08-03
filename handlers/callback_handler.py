@@ -124,23 +124,57 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
             await handle_request_action(update, context, request_id, action)
 
         elif prefix == 'cat':
-            # Handle category selection
+            # Handle category selection - Show movies in 3x10 grid format
             category = '_'.join(parts[1:]).replace('_', ' ')
-            movies = db.get_movies_by_category(category, limit=10)
+            page = int(parts[-1]) if parts[-1].isdigit() and len(parts) > 2 else 1
+            
+            # Get movies with pagination (30 per page)
+            offset = (page - 1) * 30
+            movies = db.get_movies_by_category(category, limit=31, offset=offset)  # Get 31 to check if there's a next page
             
             if not movies:
                 await query.edit_message_text(f"❌ No movies found in category: {category}")
                 return
             
-            message_text = f"🎬 Movies in {category}:\n\n"
+            # Create 3-column grid layout
             buttons = []
+            movies_to_show = movies[:30]  # Show max 30 movies
             
-            for i, movie in enumerate(movies, 1):
-                message_text += f"{i}. {movie.get('title', 'Unknown')}\n"
-                buttons.append([InlineKeyboardButton(f"🎬 {movie.get('title', 'Unknown')}", callback_data=f"view_{movie['movie_id']}")])
+            # Group movies into rows of 3
+            for i in range(0, len(movies_to_show), 3):
+                row = []
+                for j in range(3):
+                    if i + j < len(movies_to_show):
+                        movie = movies_to_show[i + j]
+                        title = movie.get('title', 'Unknown')
+                        # Truncate long titles for button display
+                        if len(title) > 15:
+                            title = title[:12] + "..."
+                        row.append(InlineKeyboardButton(f"🎬 {title}", callback_data=f"view_{movie['movie_id']}"))
+                if row:
+                    buttons.append(row)
+            
+            # Add navigation buttons if needed
+            nav_buttons = []
+            if page > 1:
+                nav_buttons.append(InlineKeyboardButton("⬅️ Previous", callback_data=f"cat_{category.replace(' ', '_')}_{page-1}"))
+            
+            if len(movies) > 30:  # There are more movies
+                nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"cat_{category.replace(' ', '_')}_{page+1}"))
+            
+            if nav_buttons:
+                buttons.append(nav_buttons)
+            
+            # Add back to categories button
+            buttons.append([InlineKeyboardButton("🔙 Back to Categories", callback_data="browse_categories")])
             
             reply_markup = InlineKeyboardMarkup(buttons)
-            await query.edit_message_text(message_text, reply_markup=reply_markup)
+            
+            # Show only buttons, no text message
+            if page == 1:
+                await query.edit_message_text(f"🎬 {category} Movies:", reply_markup=reply_markup)
+            else:
+                await query.edit_message_text(f"🎬 {category} Movies (Page {page}):", reply_markup=reply_markup)
 
         else:
             logger.warning(f"Unhandled callback prefix: {prefix}")
