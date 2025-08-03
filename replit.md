@@ -38,6 +38,7 @@ Preferred communication style: Simple, everyday language.
   - Removed confusing `/command` format from help messages - now shows feature names with emojis
   - Enhanced dynamic command menu to show only `/cancel` during conversations (hiding all other commands)
   - Commands automatically restore to default (`/start`, `/help`) when conversations end
+  - Fixed command scope using proper BotCommandScopeChat for per-chat command management
   - Applies to all conversations: add/remove admin, add/remove channel, add movie, request movie, etc.
 
 ### Previous Updates - August 3, 2025

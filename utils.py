@@ -162,25 +162,27 @@ def get_movie_search_results_markup(movies: List[dict]) -> InlineKeyboardMarkup:
 # --- Dynamic Bot Commands Management ---
 async def set_conversation_commands(context, chat_id: int):
     """Set commands when user enters a conversation - only show cancel."""
-    from telegram import BotCommand
+    from telegram import BotCommand, BotCommandScopeChat
     commands = [
         BotCommand("cancel", "Cancel current operation")
     ]
     try:
-        await context.bot.set_my_commands(commands, scope={"type": "chat", "chat_id": chat_id})
+        scope = BotCommandScopeChat(chat_id=chat_id)
+        await context.bot.set_my_commands(commands, scope=scope)
         logger.info(f"Conversation commands set for chat {chat_id}")
     except Exception as e:
         logger.warning(f"Failed to set conversation commands for chat {chat_id}: {e}")
 
 async def restore_default_commands(context, chat_id: int):
     """Restore default commands when conversation ends."""
-    from telegram import BotCommand
+    from telegram import BotCommand, BotCommandScopeChat
     commands = [
         BotCommand("start", "Start the bot"),
         BotCommand("help", "Get help and instructions")
     ]
     try:
-        await context.bot.set_my_commands(commands, scope={"type": "chat", "chat_id": chat_id})
+        scope = BotCommandScopeChat(chat_id=chat_id)
+        await context.bot.set_my_commands(commands, scope=scope)
         logger.info(f"Default commands restored for chat {chat_id}")
     except Exception as e:
         logger.warning(f"Failed to restore default commands for chat {chat_id}: {e}")
