@@ -110,10 +110,13 @@ async def browse_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def request_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the movie request conversation."""
-    from utils import set_conversation_keyboard
+    from utils import set_conversation_keyboard, set_conversation_commands
     
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
+    
+    # Set conversation commands
+    await set_conversation_commands(update, context)
     
     await update.message.reply_text(
         "🙏 Request a Movie\n\n"
@@ -227,10 +230,13 @@ async def show_requests(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 @restricted(allowed_roles=['owner', 'admin'])
 async def remove_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the remove movie conversation."""
-    from utils import set_conversation_keyboard
+    from utils import set_conversation_keyboard, set_conversation_commands
     
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
+    
+    # Set conversation commands
+    await set_conversation_commands(update, context)
     
     await update.message.reply_text(
         "🗑️ Remove Movie\n\n"
@@ -326,10 +332,13 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
 @restricted(allowed_roles=['owner', 'admin'])
 async def show_stats_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the show stats conversation."""
-    from utils import set_conversation_keyboard
+    from utils import set_conversation_keyboard, set_conversation_commands
     
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
+    
+    # Set conversation commands
+    await set_conversation_commands(update, context)
     
     await update.message.reply_text(
         "📊 Movie Statistics\n\n"

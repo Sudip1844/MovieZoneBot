@@ -33,10 +33,13 @@ logger = logging.getLogger(__name__)
 @restricted(allowed_roles=['owner'])
 async def add_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to add a new admin."""
-    from utils import set_conversation_keyboard
+    from utils import set_conversation_keyboard, set_conversation_commands
     
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
+    
+    # Set conversation commands for both message and callback query
+    await set_conversation_commands(update, context)
     
     # Handle both message and callback query
     if update.callback_query:
@@ -144,10 +147,13 @@ async def confirm_add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 @restricted(allowed_roles=['owner'])
 async def remove_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to remove an admin with button selection."""
-    from utils import set_conversation_keyboard
+    from utils import set_conversation_keyboard, set_conversation_commands
     
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
+    
+    # Set conversation commands for both message and callback query
+    await set_conversation_commands(update, context)
     
     # Handle both message and callback query
     if update.callback_query:
@@ -224,10 +230,13 @@ async def confirm_remove_admin(update: Update, context: ContextTypes.DEFAULT_TYP
 @restricted(allowed_roles=['owner'])
 async def add_channel_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to add a new channel."""
-    from utils import set_conversation_keyboard
+    from utils import set_conversation_keyboard, set_conversation_commands
     
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
+    
+    # Set conversation commands for both message and callback query
+    await set_conversation_commands(update, context)
     
     # Handle both message and callback query
     if update.callback_query:
@@ -347,10 +356,13 @@ async def confirm_add_channel(update: Update, context: ContextTypes.DEFAULT_TYPE
 @restricted(allowed_roles=['owner'])
 async def remove_channel_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to remove a channel with button selection."""
-    from utils import set_conversation_keyboard
+    from utils import set_conversation_keyboard, set_conversation_commands
     
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
+    
+    # Set conversation commands for both message and callback query
+    await set_conversation_commands(update, context)
     
     # Handle both message and callback query
     if update.callback_query:

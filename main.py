@@ -75,7 +75,7 @@ async def welcome_new_member(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     was_member, is_member = result
     user = update.chat_member.new_chat_member.user
-    
+
     # We only want to greet new members, not status changes of existing members
     if not was_member and is_member:
         logger.info(f"{user.mention_html()} joined channel {update.effective_chat.title}")
@@ -91,10 +91,10 @@ async def global_cancel_handler(update: Update, context: ContextTypes.DEFAULT_TY
     """Handle /cancel command globally to end any conversation."""
     from utils import restore_main_keyboard
     import database as db
-    
+
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await restore_main_keyboard(update, context, user_role)
-    
+
     await update.message.reply_text("❌ Action cancelled.", reply_markup=keyboard)
     context.user_data.clear()
 
@@ -112,28 +112,28 @@ def main() -> None:
     if not BOT_TOKEN:
         logger.critical("FATAL: BOT_TOKEN is not configured. Bot cannot start.")
         return
-        
+
     # Initialize database
     db.initialize_database()
-        
+
     # --- Application Setup ---
     application = Application.builder().token(BOT_TOKEN).build()
-    
+
     # --- Registering Handlers ---
     # Add all handlers from the different handler files.
     # The order can be important.
-    
+
     # 1. Owner-specific handlers (highest priority for these commands)
     for handler in owner_handlers:
         application.add_handler(handler)
-        
+
     # 2. Add Movie conversation handler
     application.add_handler(add_movie_conv_handler)
-    
+
     # 3. Regular command and message handlers from start_handler
     for handler in start_handlers:
         application.add_handler(handler)
-        
+
     # 4. Callback Query Handler for all inline buttons
     application.add_handler(callback_query_handler)
 
@@ -144,16 +144,17 @@ def main() -> None:
     # Note: The text handler for search queries should be one of the last to be added.
     for handler in movie_handlers:
         application.add_handler(handler)
-        
+
     # 7. Global cancel command handler
     application.add_handler(CommandHandler('cancel', global_cancel_handler))
-    
+
     # 8. Error handler
     application.add_error_handler(error_handler)
 
     # --- Set Default Bot Commands for Menu ---
     async def post_init(application):
         from telegram import BotCommand
+        # Set default bot commands globally (cancel will be added only during conversations)
         commands = [
             BotCommand("start", "Start the bot"),
             BotCommand("help", "Get help and instructions")
@@ -162,7 +163,7 @@ def main() -> None:
         logger.info("Default bot commands have been set")
 
     application.post_init = post_init
-    
+
     # --- Start the Bot ---
     logger.info("Bot is starting up...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
