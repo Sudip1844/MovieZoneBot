@@ -207,9 +207,22 @@ Support:
 """
 
 
+async def cancel_button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle cancel button press from reply keyboard."""
+    from utils import get_main_keyboard
+    
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = get_main_keyboard(user_role)
+    
+    # Clear any ongoing conversation
+    context.user_data.clear()
+    
+    await update.message.reply_text("❌ Action cancelled.", reply_markup=keyboard)
+
 # Handlers list to be imported in main.py
 start_handlers = [
     CommandHandler("start", start),
     CommandHandler("help", help_command),
-    MessageHandler(filters.Regex('^❓ Help$'), help_command) # Also works from the keyboard button
+    MessageHandler(filters.Regex('^❓ Help$'), help_command), # Also works from the keyboard button
+    MessageHandler(filters.Regex('^❌ Cancel$'), cancel_button_handler) # Handle cancel button
 ]

@@ -44,27 +44,27 @@ def restricted(allowed_roles: List[str]):
 # --- Keyboard and Button Generation ---
 
 def get_main_keyboard(user_role: str) -> ReplyKeyboardMarkup:
-    """Create role-based main menu keyboard for users."""
+    """Create role-based main menu keyboard for users with cancel button always available."""
     
     if user_role == 'owner':
-        # Owner gets all commands
+        # Owner gets all commands plus cancel
         keyboard = [
             [KeyboardButton("➕ Add Movie"), KeyboardButton("📊 Show Requests")],
             [KeyboardButton("👥 Manage Admins"), KeyboardButton("📢 Manage Channels")],
-            [KeyboardButton("❓ Help")]
+            [KeyboardButton("❓ Help"), KeyboardButton("❌ Cancel")]
         ]
     elif user_role == 'admin':
-        # Admin gets movie management commands only
+        # Admin gets movie management commands plus cancel
         keyboard = [
             [KeyboardButton("➕ Add Movie"), KeyboardButton("📊 Show Requests")],
-            [KeyboardButton("❓ Help")]
+            [KeyboardButton("❓ Help"), KeyboardButton("❌ Cancel")]
         ]
     else:
-        # Regular users get basic commands only
+        # Regular users get basic commands plus cancel
         keyboard = [
             [KeyboardButton("🔍 Search Movies"), KeyboardButton("📂 Browse Categories")],
-            [KeyboardButton("🙏 Request Movie")],
-            [KeyboardButton("❓ Help")]
+            [KeyboardButton("🙏 Request Movie"), KeyboardButton("❓ Help")],
+            [KeyboardButton("❌ Cancel")]
         ]
     
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -227,12 +227,12 @@ async def restore_default_commands(update: Update, context):
         logger.error(f"Failed to keep hamburger menu disabled: {e}")
 
 async def set_conversation_keyboard(update: Update, context, user_role: str):
-    """Set conversation keyboard with cancel button and update commands."""
-    keyboard = get_conversation_keyboard(user_role)
+    """Use main keyboard during conversations since cancel is already included."""
+    keyboard = get_main_keyboard(user_role)
     # Store the original keyboard to restore later
     context.user_data['original_keyboard'] = get_main_keyboard(user_role)
     
-    # Set conversation commands (only /cancel visible)
+    # Set conversation commands (hamburger menu disabled)
     await set_conversation_commands(update, context)
     
     return keyboard
