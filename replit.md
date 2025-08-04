@@ -31,8 +31,10 @@ Preferred communication style: Simple, everyday language.
   - Enhanced command management functions in utils.py for consistent behavior across all handlers
   - Applies to: add movie, request movie, add/remove admin, add/remove channel, show stats, remove movie
   - Fixed text input handling: `/cancel` command now properly cancels conversations instead of being processed as input data
-  - Added cancel filtering to all text input handlers preventing accidental request submissions
+  - Added strict cancel filtering to all text input handlers preventing accidental request submissions
   - Updated conversation messages to instruct users to "Type /cancel to cancel this action"
+  - Enhanced cancel filtering in get_movie_request function with multiple cancel variations
+  - Fixed issue where "❌ Cancel" text was being processed as movie request instead of canceling conversation
 
 ### Recent Updates - August 3, 2025
 - **Fixed Movie Posting to Channels**: Enhanced channel link validation system
