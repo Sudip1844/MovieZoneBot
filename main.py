@@ -130,20 +130,20 @@ def main() -> None:
     # 2. Add Movie conversation handler
     application.add_handler(add_movie_conv_handler)
 
-    # 3. Regular command and message handlers from start_handler
+    # 3. Movie-related handlers (search, category, request, remove movie)
+    # These must be added before the general callback handler to process delete callbacks
+    for handler in movie_handlers:
+        application.add_handler(handler)
+
+    # 4. Regular command and message handlers from start_handler
     for handler in start_handlers:
         application.add_handler(handler)
 
-    # 4. Callback Query Handler for all inline buttons
+    # 5. Callback Query Handler for all inline buttons (must be after conversation handlers)
     application.add_handler(callback_query_handler)
 
-    # 5. Welcome message for new channel members
+    # 6. Welcome message for new channel members
     application.add_handler(ChatMemberHandler(welcome_new_member, ChatMemberHandler.CHAT_MEMBER))
-
-    # 6. Movie-related handlers (search, category, request)
-    # Note: The text handler for search queries should be one of the last to be added.
-    for handler in movie_handlers:
-        application.add_handler(handler)
 
     # 7. Global cancel command handler
     application.add_handler(CommandHandler('cancel', global_cancel_handler))

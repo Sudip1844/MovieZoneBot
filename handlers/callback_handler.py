@@ -123,6 +123,11 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
             action, request_id = parts[1], int(parts[2])
             await handle_request_action(update, context, request_id, action)
 
+        elif callback_data in ['confirm_delete', 'cancel_delete'] or callback_data.startswith('delete_'):
+            # These callbacks are handled by the remove_movie conversation handler
+            # We should not process them here, let the conversation handler take care of them
+            return
+            
         elif callback_data == 'browse_categories':
             # Handle "Back to Categories" button - Show main categories
             from config import CATEGORIES
