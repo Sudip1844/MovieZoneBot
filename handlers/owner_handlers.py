@@ -33,26 +33,26 @@ logger = logging.getLogger(__name__)
 @restricted(allowed_roles=['owner'])
 async def add_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to add a new admin."""
-    from utils import set_conversation_commands
+    from utils import set_conversation_keyboard
+    
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await set_conversation_keyboard(update, context, user_role)
     
     # Handle both message and callback query
     if update.callback_query:
         query = update.callback_query
         await query.answer()
-        # Set conversation commands
-        await set_conversation_commands(context, query.message.chat_id)
         await query.edit_message_text(
             "Please forward a message from the user you want to make an admin.\n"
             "Or, send their Telegram User ID.\n\n"
-            "To cancel, type /cancel."
+            "To cancel, press ❌ Cancel button."
         )
     else:
-        # Set conversation commands
-        await set_conversation_commands(context, update.effective_chat.id)
         await update.message.reply_text(
             "Please forward a message from the user you want to make an admin.\n"
             "Or, send their Telegram User ID.\n\n"
-            "To cancel, type /cancel."
+            "To cancel, press ❌ Cancel button.",
+            reply_markup=keyboard
         )
     return GET_ADMIN_USERID
 
@@ -139,14 +139,15 @@ async def confirm_add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 @restricted(allowed_roles=['owner'])
 async def remove_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to remove an admin with button selection."""
-    from utils import set_conversation_commands
+    from utils import set_conversation_keyboard
+    
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await set_conversation_keyboard(update, context, user_role)
     
     # Handle both message and callback query
     if update.callback_query:
         query = update.callback_query
         await query.answer()
-        # Set conversation commands
-        await set_conversation_commands(context, query.message.chat_id)
         
         admins = db.get_all_admins()
         if not admins:
@@ -217,24 +218,24 @@ async def confirm_remove_admin(update: Update, context: ContextTypes.DEFAULT_TYP
 @restricted(allowed_roles=['owner'])
 async def add_channel_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to add a new channel."""
-    from utils import set_conversation_commands
+    from utils import set_conversation_keyboard
+    
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await set_conversation_keyboard(update, context, user_role)
     
     # Handle both message and callback query
     if update.callback_query:
         query = update.callback_query
         await query.answer()
-        # Set conversation commands
-        await set_conversation_commands(context, query.message.chat_id)
         await query.edit_message_text(
             "Please send the channel or group link (e.g., https://t.me/moviezone969).\n\n"
-            "To cancel, type /cancel."
+            "To cancel, press ❌ Cancel button."
         )
     else:
-        # Set conversation commands
-        await set_conversation_commands(context, update.effective_chat.id)
         await update.message.reply_text(
             "Please send the channel or group link (e.g., https://t.me/moviezone969).\n\n"
-            "To cancel, type /cancel."
+            "To cancel, press ❌ Cancel button.",
+            reply_markup=keyboard
         )
     return GET_CHANNEL_LINK
 
@@ -335,14 +336,15 @@ async def confirm_add_channel(update: Update, context: ContextTypes.DEFAULT_TYPE
 @restricted(allowed_roles=['owner'])
 async def remove_channel_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation to remove a channel with button selection."""
-    from utils import set_conversation_commands
+    from utils import set_conversation_keyboard
+    
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await set_conversation_keyboard(update, context, user_role)
     
     # Handle both message and callback query
     if update.callback_query:
         query = update.callback_query
         await query.answer()
-        # Set conversation commands
-        await set_conversation_commands(context, query.message.chat_id)
         
         channels = db.get_all_channels()
         if not channels:
@@ -363,9 +365,6 @@ async def remove_channel_start(update: Update, context: ContextTypes.DEFAULT_TYP
         reply_markup = InlineKeyboardMarkup(buttons)
         await query.edit_message_text("Select channel to remove:", reply_markup=reply_markup)
     else:
-        # Set conversation commands
-        await set_conversation_commands(context, update.effective_chat.id)
-        
         channels = db.get_all_channels()
         if not channels:
             await update.message.reply_text("There are no channels to remove.")
@@ -486,13 +485,13 @@ async def handle_channel_management(update: Update, context: ContextTypes.DEFAUL
         await remove_channel_start(fake_update, context)
 
 async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Generic cancellation function."""
-    from utils import restore_default_commands
+    """Cancel any ongoing owner conversation."""
+    from utils import restore_main_keyboard
     
-    # Restore default commands
-    await restore_default_commands(context, update.effective_chat.id)
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await restore_main_keyboard(update, context, user_role)
     
-    await update.message.reply_text("Action cancelled.", reply_markup=ReplyKeyboardRemove())
+    await update.message.reply_text("❌ Action cancelled.", reply_markup=keyboard)
     context.user_data.clear()
     return ConversationHandler.END
 
@@ -507,7 +506,10 @@ add_admin_conv = ConversationHandler(
         GET_ADMIN_SHORT_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_admin_short_name)],
         CONFIRM_ADD_ADMIN: [CallbackQueryHandler(confirm_add_admin, pattern='^(confirm|cancel)_add_admin$')],
     },
-    fallbacks=[CommandHandler('cancel', cancel_conversation)]
+    fallbacks=[
+        CommandHandler('cancel', cancel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+    ]
 )
 
 remove_admin_conv = ConversationHandler(
@@ -518,7 +520,10 @@ remove_admin_conv = ConversationHandler(
     states={
         CONFIRM_REMOVE_ADMIN: [CallbackQueryHandler(confirm_remove_admin, pattern='^(remove_admin_|cancel_remove_admin).*$')],
     },
-    fallbacks=[CommandHandler('cancel', cancel_conversation)]
+    fallbacks=[
+        CommandHandler('cancel', cancel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+    ]
 )
 
 add_channel_conv = ConversationHandler(
@@ -531,7 +536,10 @@ add_channel_conv = ConversationHandler(
         GET_CHANNEL_SHORT_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_channel_short_name)],
         CONFIRM_ADD_CHANNEL: [CallbackQueryHandler(confirm_add_channel, pattern='^(confirm|cancel)_add_channel$')],
     },
-    fallbacks=[CommandHandler('cancel', cancel_conversation)]
+    fallbacks=[
+        CommandHandler('cancel', cancel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+    ]
 )
 
 remove_channel_conv = ConversationHandler(
@@ -542,7 +550,10 @@ remove_channel_conv = ConversationHandler(
     states={
         CONFIRM_REMOVE_CHANNEL: [CallbackQueryHandler(confirm_remove_channel, pattern='^(remove_channel_|cancel_remove_channel).*$')],
     },
-    fallbacks=[CommandHandler('cancel', cancel_conversation)]
+    fallbacks=[
+        CommandHandler('cancel', cancel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+    ]
 )
 
 

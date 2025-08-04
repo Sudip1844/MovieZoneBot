@@ -1,5 +1,5 @@
 {
-  "next_id": 6,
+  "next_id": 7,
   "requests": {
     "1": {
       "request_id": 1,
@@ -40,6 +40,13 @@
       "status": "deleted",
       "requested_at": "2025-08-03T16:55:01.309597",
       "updated_at": "2025-08-03T17:45:20.539107"
+    },
+    "6": {
+      "request_id": 6,
+      "user_id": 7778563160,
+      "movie_name": "❌ Cancel",
+      "status": "pending",
+      "requested_at": "2025-08-03T18:23:20.234537"
     }
   }
 }
