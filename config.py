@@ -32,7 +32,7 @@ BROWSE_CATEGORIES = [
     "All 🌐", "Bollywood 🇮🇳", "Hollywood 🇺🇸", "South Indian 🎬", "Web Series 🎥",
     "Bengali ✨", "Anime & cartoon 🌀", "Comedy 🤣", "Action 💥",
     "Romance 💑", "Horror 😱", "Thriller 🔍", "Sci-Fi 🛸",
-    "K-Drama 🎎", "18+ 🔞"
+    "K-Drama 🎎", "18+ 🔞", "Hentai 💦"
 ]
 
 # Backward compatibility - default categories for movie addition
