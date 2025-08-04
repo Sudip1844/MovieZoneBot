@@ -434,14 +434,14 @@ async def handle_stats_callback(update: Update, context: ContextTypes.DEFAULT_TY
     await restore_default_commands(context, query.message.chat_id)
     return ConversationHandler.END
 
-async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Cancel any ongoing conversation."""
+async def cancel_movie_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Cancel movie-related conversation."""
     from utils import restore_main_keyboard
     
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await restore_main_keyboard(update, context, user_role)
     
-    await update.message.reply_text("❌ Action cancelled.", reply_markup=keyboard)
+    await update.message.reply_text("❌ Movie action cancelled.", reply_markup=keyboard)
     context.user_data.clear()
     return ConversationHandler.END
 
@@ -458,8 +458,8 @@ request_movie_conv = ConversationHandler(
         ]
     },
     fallbacks=[
-        CommandHandler('cancel', cancel_conversation),
-        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+        CommandHandler('cancel', cancel_movie_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_movie_conversation)
     ]
 )
 
@@ -472,8 +472,8 @@ remove_movie_conv = ConversationHandler(
         ]
     },
     fallbacks=[
-        CommandHandler('cancel', cancel_conversation),
-        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+        CommandHandler('cancel', cancel_movie_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_movie_conversation)
     ]
 )
 
@@ -486,8 +486,8 @@ show_stats_conv = ConversationHandler(
         ]
     },
     fallbacks=[
-        CommandHandler('cancel', cancel_conversation),
-        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+        CommandHandler('cancel', cancel_movie_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_movie_conversation)
     ]
 )
 

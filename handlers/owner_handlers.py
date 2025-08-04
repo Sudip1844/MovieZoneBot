@@ -549,14 +549,25 @@ async def handle_channel_management(update: Update, context: ContextTypes.DEFAUL
         })()
         await remove_channel_start(fake_update, context)
 
-async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Cancel any ongoing owner conversation."""
+async def cancel_admin_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Cancel admin management conversation."""
     from utils import restore_main_keyboard
     
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await restore_main_keyboard(update, context, user_role)
     
-    await update.message.reply_text("❌ Action cancelled.", reply_markup=keyboard)
+    await update.message.reply_text("❌ Admin management cancelled.", reply_markup=keyboard)
+    context.user_data.clear()
+    return ConversationHandler.END
+
+async def cancel_channel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Cancel channel management conversation."""
+    from utils import restore_main_keyboard
+    
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await restore_main_keyboard(update, context, user_role)
+    
+    await update.message.reply_text("❌ Channel management cancelled.", reply_markup=keyboard)
     context.user_data.clear()
     return ConversationHandler.END
 
@@ -572,8 +583,8 @@ add_admin_conv = ConversationHandler(
         CONFIRM_ADD_ADMIN: [CallbackQueryHandler(confirm_add_admin, pattern='^(confirm|cancel)_add_admin$')],
     },
     fallbacks=[
-        CommandHandler('cancel', cancel_conversation),
-        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+        CommandHandler('cancel', cancel_admin_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_admin_conversation)
     ]
 )
 
@@ -586,8 +597,8 @@ remove_admin_conv = ConversationHandler(
         CONFIRM_REMOVE_ADMIN: [CallbackQueryHandler(confirm_remove_admin, pattern='^(remove_admin_|cancel_remove_admin).*$')],
     },
     fallbacks=[
-        CommandHandler('cancel', cancel_conversation),
-        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+        CommandHandler('cancel', cancel_admin_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_admin_conversation)
     ]
 )
 
@@ -602,8 +613,8 @@ add_channel_conv = ConversationHandler(
         CONFIRM_ADD_CHANNEL: [CallbackQueryHandler(confirm_add_channel, pattern='^(confirm|cancel)_add_channel$')],
     },
     fallbacks=[
-        CommandHandler('cancel', cancel_conversation),
-        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+        CommandHandler('cancel', cancel_channel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_channel_conversation)
     ]
 )
 
@@ -616,8 +627,8 @@ remove_channel_conv = ConversationHandler(
         CONFIRM_REMOVE_CHANNEL: [CallbackQueryHandler(confirm_remove_channel, pattern='^(remove_channel_|cancel_remove_channel).*$')],
     },
     fallbacks=[
-        CommandHandler('cancel', cancel_conversation),
-        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_conversation)
+        CommandHandler('cancel', cancel_channel_conversation),
+        MessageHandler(filters.Regex("^❌ Cancel$"), cancel_channel_conversation)
     ]
 )
 
