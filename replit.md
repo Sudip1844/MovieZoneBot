@@ -41,6 +41,7 @@ The application adopts a modular architecture, promoting separation of concerns 
 - **Movie Search & Browse**: Users can search by query or browse categories with detailed movie information and download options.
 - **Movie Request System**: Users can submit movie requests, which admins can manage. Users are notified upon fulfillment.
 - **Admin & Owner Features**: Comprehensive management of users, movies, channels, and requests.
+- **Movie Management**: Owner role includes full movie lifecycle management with "➕ Add Movie", "🗑️ Remove Movie", and "📊 Show Stats" functionality accessible via reply keyboard buttons.
 - **Dynamic Command Menu**: Contextual command menu adjustments based on conversation state.
 - **Automated Posting**: After preview, movies can be posted to multiple selected channels with validation checks.
 - **Message Cleanup**: Scheduled auto-deletion of messages and token expiration for a clean system.

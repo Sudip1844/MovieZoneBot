@@ -49,7 +49,8 @@ def get_main_keyboard(user_role: str) -> ReplyKeyboardMarkup:
     if user_role == 'owner':
         # Owner gets all commands plus cancel
         keyboard = [
-            [KeyboardButton("➕ Add Movie"), KeyboardButton("📊 Show Requests")],
+            [KeyboardButton("➕ Add Movie"), KeyboardButton("🗑️ Remove Movie")],
+            [KeyboardButton("📊 Show Requests"), KeyboardButton("📊 Show Stats")],
             [KeyboardButton("👥 Manage Admins"), KeyboardButton("📢 Manage Channels")],
             [KeyboardButton("❓ Help"), KeyboardButton("❌ Cancel")]
         ]
@@ -75,7 +76,8 @@ def get_conversation_keyboard(user_role: str) -> ReplyKeyboardMarkup:
     if user_role == 'owner':
         # Owner gets all commands plus cancel
         keyboard = [
-            [KeyboardButton("➕ Add Movie"), KeyboardButton("📊 Show Requests")],
+            [KeyboardButton("➕ Add Movie"), KeyboardButton("🗑️ Remove Movie")],
+            [KeyboardButton("📊 Show Requests"), KeyboardButton("📊 Show Stats")],
             [KeyboardButton("👥 Manage Admins"), KeyboardButton("📢 Manage Channels")],
             [KeyboardButton("❓ Help"), KeyboardButton("❌ Cancel")]
         ]

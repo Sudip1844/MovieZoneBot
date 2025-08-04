@@ -259,8 +259,10 @@ async def get_movie_to_delete(update: Update, context: ContextTypes.DEFAULT_TYPE
     """Handle movie deletion."""
     movie_name = update.message.text
     
-    # Check if user sent /cancel command
-    if movie_name.lower() == '/cancel' or movie_name.lower() == 'cancel':
+    # Check if user sent /cancel command or pressed cancel button
+    if (movie_name.lower() == '/cancel' or 
+        movie_name.lower() == 'cancel' or
+        movie_name == '❌ Cancel'):
         from utils import restore_main_keyboard
         user_role = db.get_user_role(update.effective_user.id)
         keyboard = await restore_main_keyboard(update, context, user_role)
@@ -466,7 +468,10 @@ request_movie_conv = ConversationHandler(
 )
 
 remove_movie_conv = ConversationHandler(
-    entry_points=[CommandHandler("removemovie", remove_movie_start)],
+    entry_points=[
+        CommandHandler("removemovie", remove_movie_start),
+        MessageHandler(filters.Regex("^🗑️ Remove Movie$"), remove_movie_start)
+    ],
     states={
         DELETE_MOVIE_NAME: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, get_movie_to_delete),
@@ -480,7 +485,10 @@ remove_movie_conv = ConversationHandler(
 )
 
 show_stats_conv = ConversationHandler(
-    entry_points=[CommandHandler("showstats", show_stats_start)],
+    entry_points=[
+        CommandHandler("showstats", show_stats_start),
+        MessageHandler(filters.Regex("^📊 Show Stats$"), show_stats_start)
+    ],
     states={
         SHOW_STATS_MOVIE_NAME: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, get_movie_for_stats),
