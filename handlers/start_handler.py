@@ -22,6 +22,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     logger.info(f"/start command received from user: {user.id} ({user.first_name})")
 
+    # Disable hamburger menu for this user
+    from utils import restore_default_commands
+    await restore_default_commands(context, update.effective_chat.id)
+
     # Add user to the database if they don't exist
     db.add_user_if_not_exists(user.id, user.first_name, user.username)
     

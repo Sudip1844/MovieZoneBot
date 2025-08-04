@@ -229,17 +229,11 @@ async def set_conversation_commands(update: Update, context):
     except Exception as e:
         logger.error(f"Failed to disable hamburger menu: {e}")
 
-async def restore_default_commands(update: Update, context):
+async def restore_default_commands(context, chat_id):
     """Keep hamburger menu disabled - all commands through reply keyboard only."""
     from telegram import BotCommand, BotCommandScopeChat
     
     try:
-        # Get chat_id from either update.effective_chat or callback query
-        if hasattr(update, 'callback_query') and update.callback_query:
-            chat_id = update.callback_query.message.chat_id
-        else:
-            chat_id = update.effective_chat.id
-            
         # Keep hamburger menu empty - all commands through reply keyboard
         await context.bot.set_my_commands(
             commands=[],  # No hamburger menu commands

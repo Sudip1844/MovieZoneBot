@@ -153,9 +153,11 @@ def main() -> None:
 
     # --- Disable Hamburger Menu Globally ---
     async def post_init(application):
-        # Remove hamburger menu entirely - all commands through reply keyboard
-        await application.bot.set_my_commands([])
-        logger.info("Hamburger menu disabled globally - using reply keyboard only")
+        # Disable hamburger menu globally - use reply keyboard only
+        from telegram import BotCommandScopeDefault, BotCommandScopeAllPrivateChats
+        await application.bot.set_my_commands([], scope=BotCommandScopeDefault())
+        await application.bot.set_my_commands([], scope=BotCommandScopeAllPrivateChats())
+        logger.info("Hamburger menu disabled globally for all users - using reply keyboard only")
 
     application.post_init = post_init
 
