@@ -70,10 +70,29 @@ def get_main_keyboard(user_role: str) -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 def get_conversation_keyboard(user_role: str) -> ReplyKeyboardMarkup:
-    """Create keyboard with cancel button during conversations."""
-    keyboard = [
-        [KeyboardButton("❌ Cancel")]
-    ]
+    """Create keyboard with cancel button during conversations, alongside main buttons."""
+    
+    if user_role == 'owner':
+        # Owner gets all commands plus cancel
+        keyboard = [
+            [KeyboardButton("➕ Add Movie"), KeyboardButton("📊 Show Requests")],
+            [KeyboardButton("👥 Manage Admins"), KeyboardButton("📢 Manage Channels")],
+            [KeyboardButton("❓ Help"), KeyboardButton("❌ Cancel")]
+        ]
+    elif user_role == 'admin':
+        # Admin gets movie management commands plus cancel
+        keyboard = [
+            [KeyboardButton("➕ Add Movie"), KeyboardButton("📊 Show Requests")],
+            [KeyboardButton("❓ Help"), KeyboardButton("❌ Cancel")]
+        ]
+    else:
+        # Regular users get basic commands plus cancel
+        keyboard = [
+            [KeyboardButton("🔍 Search Movies"), KeyboardButton("📂 Browse Categories")],
+            [KeyboardButton("🙏 Request Movie"), KeyboardButton("❓ Help")],
+            [KeyboardButton("❌ Cancel")]
+        ]
+    
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 def get_category_keyboard() -> InlineKeyboardMarkup:
@@ -168,7 +187,7 @@ def get_movie_search_results_markup(movies: List[dict]) -> InlineKeyboardMarkup:
 
 # --- Dynamic Bot Commands Management ---
 async def set_conversation_commands(update: Update, context):
-    """Clear hamburger menu completely during conversations - NO commands in hamburger menu."""
+    """Remove hamburger menu entirely - no commands will appear there."""
     from telegram import BotCommand, BotCommandScopeChat
     
     try:
@@ -178,17 +197,17 @@ async def set_conversation_commands(update: Update, context):
         else:
             chat_id = update.effective_chat.id
             
-        # REMOVE ALL COMMANDS from hamburger menu - completely empty
+        # REMOVE ALL COMMANDS from hamburger menu permanently
         await context.bot.set_my_commands(
-            commands=[],  # Empty array = no commands in hamburger menu
+            commands=[],  # Empty array = no hamburger menu
             scope=BotCommandScopeChat(chat_id=chat_id)
         )
-        logger.info(f"CLEARED hamburger menu completely for chat {chat_id}")
+        logger.info(f"Hamburger menu disabled for chat {chat_id}")
     except Exception as e:
-        logger.error(f"Failed to clear hamburger menu: {e}")
+        logger.error(f"Failed to disable hamburger menu: {e}")
 
 async def restore_default_commands(update: Update, context):
-    """Restore default commands when conversation ends."""
+    """Keep hamburger menu disabled - all commands through reply keyboard only."""
     from telegram import BotCommand, BotCommandScopeChat
     
     try:
@@ -198,18 +217,14 @@ async def restore_default_commands(update: Update, context):
         else:
             chat_id = update.effective_chat.id
             
-        # Restore default commands to hamburger menu (start & help only)
-        default_commands = [
-            BotCommand("start", "Start the bot"),
-            BotCommand("help", "Get help and instructions")
-        ]
+        # Keep hamburger menu empty - all commands through reply keyboard
         await context.bot.set_my_commands(
-            commands=default_commands,
+            commands=[],  # No hamburger menu commands
             scope=BotCommandScopeChat(chat_id=chat_id)
         )
-        logger.info(f"Restored default commands to hamburger menu for chat {chat_id}")
+        logger.info(f"Hamburger menu kept disabled for chat {chat_id}")
     except Exception as e:
-        logger.error(f"Failed to restore default commands: {e}")
+        logger.error(f"Failed to keep hamburger menu disabled: {e}")
 
 async def set_conversation_keyboard(update: Update, context, user_role: str):
     """Set conversation keyboard with cancel button and update commands."""

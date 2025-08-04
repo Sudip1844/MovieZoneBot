@@ -151,16 +151,11 @@ def main() -> None:
     # 8. Error handler
     application.add_error_handler(error_handler)
 
-    # --- Set Default Bot Commands for Menu ---
+    # --- Disable Hamburger Menu Globally ---
     async def post_init(application):
-        from telegram import BotCommand
-        # Set default bot commands globally (cancel will be added only during conversations)
-        commands = [
-            BotCommand("start", "Start the bot"),
-            BotCommand("help", "Get help and instructions")
-        ]
-        await application.bot.set_my_commands(commands)
-        logger.info("Default bot commands have been set")
+        # Remove hamburger menu entirely - all commands through reply keyboard
+        await application.bot.set_my_commands([])
+        logger.info("Hamburger menu disabled globally - using reply keyboard only")
 
     application.post_init = post_init
 
