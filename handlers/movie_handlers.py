@@ -39,6 +39,24 @@ async def handle_search_query(update: Update, context: ContextTypes.DEFAULT_TYPE
     if context.user_data and ('conversation_state' in context.user_data or 'new_admin' in context.user_data or 'new_channel' in context.user_data):
         return
     
+    # Check if user is using alphabet filter (single letter after selecting "All" category)
+    if len(query) == 1 and query.isalpha():
+        logger.info(f"User {update.effective_user.id} requested alphabet filter for letter: {query}")
+        movies = db.get_movies_by_first_letter(query.upper(), limit=30)
+        
+        if not movies:
+            await update.message.reply_text(f"❌ No movies found starting with '{query.upper()}'.")
+            return
+        
+        # Show movies in grid format like category browsing
+        from utils import create_movie_grid_markup
+        reply_markup = create_movie_grid_markup(movies, prefix="view")
+        await update.message.reply_html(
+            f"🌐 Movies starting with '{query.upper()}' ({len(movies)} found):",
+            reply_markup=reply_markup
+        )
+        return
+    
     logger.info(f"User {update.effective_user.id} searched for: {query}")
     
     movies = db.search_movies(query, limit=10)

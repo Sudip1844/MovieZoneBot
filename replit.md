@@ -12,6 +12,9 @@ The hamburger menu is completely removed; during conversations, it is empty.
 The "❌ Cancel" button appears in the reply keyboard alongside other commands during conversations.
 The `/cancel` command is available via command box input.
 The bot should not make changes to the `BOT_TOKEN` in `config.py`.
+Updated category system with specific emoji icons and two special categories:
+- "All 🌐" for alphabet-based movie filtering (user types letter, bot shows movies starting with that letter)
+- "Hentai 💦" available only in admin movie addition interface, not in user browsing
 
 ## System Architecture
 

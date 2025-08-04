@@ -129,17 +129,17 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
             return
             
         elif callback_data == 'browse_categories':
-            # Handle "Back to Categories" button - Show main categories
-            from config import CATEGORIES
+            # Handle "Back to Categories" button - Show browse categories
+            from config import BROWSE_CATEGORIES
             
             # Create category buttons in 2-column layout
             buttons = []
-            for i in range(0, len(CATEGORIES), 2):
+            for i in range(0, len(BROWSE_CATEGORIES), 2):
                 row = []
                 for j in range(2):
-                    if i + j < len(CATEGORIES):
-                        category = CATEGORIES[i + j]
-                        row.append(InlineKeyboardButton(f"🎪 {category}", callback_data=f"cat_{category.replace(' ', '_')}"))
+                    if i + j < len(BROWSE_CATEGORIES):
+                        category = BROWSE_CATEGORIES[i + j]
+                        row.append(InlineKeyboardButton(category, callback_data=f"cat_{category.replace(' ', '_')}"))
                 if row:
                     buttons.append(row)
             
@@ -150,6 +150,15 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
             # Handle category selection - Show movies in 3x10 grid format
             category = '_'.join(parts[1:]).replace('_', ' ')
             page = int(parts[-1]) if parts[-1].isdigit() and len(parts) > 2 else 1
+            
+            # Special handling for "All" category - alphabet filtering
+            if category == "All 🌐":
+                await query.edit_message_text(
+                    "🌐 All Movies - Alphabet Filter\n\n"
+                    "Please send any letter (A-Z) to see movies starting with that letter.\n\n"
+                    "For example, send 'A' to see all movies starting with A."
+                )
+                return
             
             # Get movies with pagination (30 per page)
             offset = (page - 1) * 30

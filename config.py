@@ -19,12 +19,24 @@ AD_PAGE_URL = "https://sudip1844.github.io/moviezone-redirect-page-/"
 
 # --- Bot Settings ---
 # মুভি যোগ করার সময় যে ক্যাটাগরিগুলো দেখানো হবে (আপনার ছবি অনুযায়ী)
-CATEGORIES = [
-    "🎬 Bollywood", "🧑‍🎤 Hollywood", "🎪 South Indian", "📺 Web Series",
-    "✨ Bengali", "🎨 Animation", "😂 Comedy", "💥 Action",
-    "❤️ Romance", "😱 Horror", "🔎 Thriller", "🛸 Sci-Fi",
-    "🏮 K-Drama", "🔞 18+"
+# Categories for movie addition (includes Hentai for admin/owner only)
+ADMIN_CATEGORIES = [
+    "Bollywood 🇮🇳", "Hollywood 🇺🇸", "South Indian 🎬", "Web Series 🎥",
+    "Bengali ✨", "Anime & cartoon 🌀", "Comedy 🤣", "Action 💥",
+    "Romance 💑", "Horror 😱", "Thriller 🔍", "Sci-Fi 🛸",
+    "K-Drama 🎎", "18+ 🔞", "Hentai 💦"
 ]
+
+# Categories for browsing (includes All for alphabet filtering)
+BROWSE_CATEGORIES = [
+    "All 🌐", "Bollywood 🇮🇳", "Hollywood 🇺🇸", "South Indian 🎬", "Web Series 🎥",
+    "Bengali ✨", "Anime & cartoon 🌀", "Comedy 🤣", "Action 💥",
+    "Romance 💑", "Horror 😱", "Thriller 🔍", "Sci-Fi 🛸",
+    "K-Drama 🎎", "18+ 🔞"
+]
+
+# Backward compatibility - default categories for movie addition
+CATEGORIES = ADMIN_CATEGORIES
 
 # মুভি যোগ করার সময় যে ভাষাগুলো দেখানো হবে
 LANGUAGES = [

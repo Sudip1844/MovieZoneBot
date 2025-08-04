@@ -98,12 +98,13 @@ def get_conversation_keyboard(user_role: str) -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 def get_category_keyboard() -> InlineKeyboardMarkup:
-    """মুভির ক্যাটাগরিগুলোর জন্য একটি ইনলাইন কীবোর্ড তৈরি করে।"""
+    """Creates an inline keyboard for browsing movie categories."""
+    from config import BROWSE_CATEGORIES
     buttons = []
     row = []
-    for category in CATEGORIES:
-        # প্রতিটি ক্যাটাগরির জন্য একটি বাটন তৈরি করা হয়
-        # callback_data তে 'cat_' প্রিফিক্স ব্যবহার করা হয় যাতে অন্য বাটন থেকে আলাদা করা যায়
+    for category in BROWSE_CATEGORIES:
+        # Create button for each category
+        # callback_data uses 'cat_' prefix to distinguish from other buttons
         clean_category = category.replace("✅ ", "").replace(" ", "_")
         row.append(InlineKeyboardButton(category, callback_data=f"cat_{clean_category}"))
         if len(row) == 2:
@@ -184,6 +185,26 @@ def get_movie_search_results_markup(movies: List[dict]) -> InlineKeyboardMarkup:
         button_text = f"🎬 {movie.get('title', 'Unknown')}"
         callback_data = f"view_{movie['movie_id']}"
         buttons.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
+    
+    return InlineKeyboardMarkup(buttons)
+
+def create_movie_grid_markup(movies: List[dict], prefix: str = "view") -> InlineKeyboardMarkup:
+    """Create a 3-column grid layout for movies like in category browsing."""
+    buttons = []
+    
+    # Group movies into rows of 3
+    for i in range(0, len(movies), 3):
+        row = []
+        for j in range(3):
+            if i + j < len(movies):
+                movie = movies[i + j]
+                title = movie.get('title', 'Unknown')
+                # Truncate long titles for button display
+                if len(title) > 15:
+                    title = title[:12] + "..."
+                row.append(InlineKeyboardButton(f"🎬 {title}", callback_data=f"{prefix}_{movie['movie_id']}"))
+        if row:
+            buttons.append(row)
     
     return InlineKeyboardMarkup(buttons)
 

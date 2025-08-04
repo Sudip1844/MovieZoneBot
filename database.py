@@ -195,6 +195,21 @@ def search_movies(query: str, limit: int = 10) -> List[Dict]:
     
     return results
 
+def get_movies_by_first_letter(letter: str, limit: int = 30) -> List[Dict]:
+    """Get movies that start with a specific letter."""
+    movies = load_json(MOVIES_FILE)
+    results = []
+    
+    letter_upper = letter.upper()
+    for movie_data in movies["movies"].values():
+        title = movie_data.get("title", "")
+        if title and title[0].upper() == letter_upper:
+            results.append(movie_data)
+            if len(results) >= limit:
+                break
+    
+    return results
+
 def get_movies_by_category(category: str, limit: int = 10, offset: int = 0) -> List[Dict]:
     """Get movies by category with pagination support."""
     movies = load_json(MOVIES_FILE)
