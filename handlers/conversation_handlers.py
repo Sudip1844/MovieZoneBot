@@ -33,18 +33,33 @@ def build_selection_keyboard(options: list, selected_options: set) -> InlineKeyb
     """ ক্যাটাগরি বা ভাষা নির্বাচনের জন্য কীবোর্ড তৈরি করে। """
     buttons = []
     row = []
+    
+    hentai_button = None
+
     for option in options:
         # যদি কোনো আইটেম ইতোমধ্যে সিলেক্ট করা থাকে, তবে তার পাশে একটি ✅ চিহ্ন যোগ করা হয়
         text = f"✅ {option}" if option in selected_options else option
-        row.append(InlineKeyboardButton(text, callback_data=f"select_{option}"))
-        if len(row) == 2:
-            buttons.append(row)
-            row = []
+
+        # Hentai ক্যাটাগরিটি আলাদা রাখা হবে Done বাটনের সাথে
+        if "Hentai" in option:
+            hentai_button = InlineKeyboardButton(text, callback_data=f"select_{option}")
+        else:
+            row.append(InlineKeyboardButton(text, callback_data=f"select_{option}"))
+            if len(row) == 2:
+                buttons.append(row)
+                row = []
+
+    # বাকি বাটনগুলো যোগ করি
     if row:
         buttons.append(row)
 
-    # "Done" বাটন যোগ করা হয়
-    buttons.append([InlineKeyboardButton("➡️ Done", callback_data="select_done")])
+    # Hentai এবং Done বাটন একসাথে পাশাপাশি রাখা হয়
+    last_row = []
+    if hentai_button:
+        last_row.append(hentai_button)
+    last_row.append(InlineKeyboardButton("➡️ Done", callback_data="select_done"))
+    buttons.append(last_row)
+
     return InlineKeyboardMarkup(buttons)
 
 # --- Conversation Handler Functions ---
