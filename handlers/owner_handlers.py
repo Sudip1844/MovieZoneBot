@@ -42,6 +42,11 @@ async def add_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     if update.callback_query:
         query = update.callback_query
         await query.answer()
+        
+        # Explicitly set conversation commands for callback query
+        from utils import set_conversation_commands
+        await set_conversation_commands(update, context)
+        
         await query.edit_message_text(
             "Please forward a message from the user you want to make an admin.\n"
             "Or, send their Telegram User ID.\n\n"
@@ -149,6 +154,10 @@ async def remove_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE)
         query = update.callback_query
         await query.answer()
         
+        # Explicitly set conversation commands for callback query
+        from utils import set_conversation_commands
+        await set_conversation_commands(update, context)
+        
         admins = db.get_all_admins()
         if not admins:
             await query.edit_message_text("There are no admins to remove.")
@@ -224,6 +233,11 @@ async def add_channel_start(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     if update.callback_query:
         query = update.callback_query
         await query.answer()
+        
+        # Explicitly set conversation commands for callback query
+        from utils import set_conversation_commands
+        await set_conversation_commands(update, context)
+        
         await query.edit_message_text(
             "Please send the channel or group link (e.g., https://t.me/moviezone969).\n\n"
             "To cancel, press ❌ Cancel button."
@@ -342,6 +356,10 @@ async def remove_channel_start(update: Update, context: ContextTypes.DEFAULT_TYP
     if update.callback_query:
         query = update.callback_query
         await query.answer()
+        
+        # Explicitly set conversation commands for callback query
+        from utils import set_conversation_commands
+        await set_conversation_commands(update, context)
         
         channels = db.get_all_channels()
         if not channels:

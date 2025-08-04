@@ -172,13 +172,19 @@ async def set_conversation_commands(update: Update, context):
     from telegram import BotCommand, BotCommandScopeChat
     
     try:
+        # Get chat_id from either update.effective_chat or callback query
+        if hasattr(update, 'callback_query') and update.callback_query:
+            chat_id = update.callback_query.message.chat_id
+        else:
+            chat_id = update.effective_chat.id
+            
         # Set only /cancel command during conversations
         conversation_commands = [BotCommand("cancel", "Cancel current action")]
         await context.bot.set_my_commands(
             commands=conversation_commands,
-            scope=BotCommandScopeChat(chat_id=update.effective_chat.id)
+            scope=BotCommandScopeChat(chat_id=chat_id)
         )
-        logger.info(f"Set conversation commands for chat {update.effective_chat.id}")
+        logger.info(f"Set conversation commands for chat {chat_id}")
     except Exception as e:
         logger.error(f"Failed to set conversation commands: {e}")
 
@@ -187,6 +193,12 @@ async def restore_default_commands(update: Update, context):
     from telegram import BotCommand, BotCommandScopeChat
     
     try:
+        # Get chat_id from either update.effective_chat or callback query
+        if hasattr(update, 'callback_query') and update.callback_query:
+            chat_id = update.callback_query.message.chat_id
+        else:
+            chat_id = update.effective_chat.id
+            
         # Restore default commands
         default_commands = [
             BotCommand("start", "Start the bot"),
@@ -194,9 +206,9 @@ async def restore_default_commands(update: Update, context):
         ]
         await context.bot.set_my_commands(
             commands=default_commands,
-            scope=BotCommandScopeChat(chat_id=update.effective_chat.id)
+            scope=BotCommandScopeChat(chat_id=chat_id)
         )
-        logger.info(f"Restored default commands for chat {update.effective_chat.id}")
+        logger.info(f"Restored default commands for chat {chat_id}")
     except Exception as e:
         logger.error(f"Failed to restore default commands: {e}")
 
