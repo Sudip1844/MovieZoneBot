@@ -178,15 +178,14 @@ async def set_conversation_commands(update: Update, context):
         else:
             chat_id = update.effective_chat.id
             
-        # Set only /cancel command during conversations for this specific chat
-        conversation_commands = [BotCommand("cancel", "Cancel current action")]
+        # Clear all commands for this chat - no commands in hamburger menu during conversations
         await context.bot.set_my_commands(
-            commands=conversation_commands,
+            commands=[],  # Empty commands list removes all from hamburger menu
             scope=BotCommandScopeChat(chat_id=chat_id)
         )
-        logger.info(f"Set conversation commands for chat {chat_id}: /cancel only")
+        logger.info(f"Cleared hamburger menu commands for chat {chat_id} during conversation")
     except Exception as e:
-        logger.error(f"Failed to set conversation commands: {e}")
+        logger.error(f"Failed to clear conversation commands: {e}")
 
 async def restore_default_commands(update: Update, context):
     """Restore default commands when conversation ends."""
@@ -199,11 +198,18 @@ async def restore_default_commands(update: Update, context):
         else:
             chat_id = update.effective_chat.id
             
-        # Clear chat-specific commands to fall back to global defaults
-        await context.bot.delete_my_commands(scope=BotCommandScopeChat(chat_id=chat_id))
-        logger.info(f"Cleared chat-specific commands for chat {chat_id}, falling back to global defaults")
+        # Restore default commands to hamburger menu
+        default_commands = [
+            BotCommand("start", "Start the bot"),
+            BotCommand("help", "Get help and instructions")
+        ]
+        await context.bot.set_my_commands(
+            commands=default_commands,
+            scope=BotCommandScopeChat(chat_id=chat_id)
+        )
+        logger.info(f"Restored default commands to hamburger menu for chat {chat_id}")
     except Exception as e:
-        logger.error(f"Failed to clear chat-specific commands: {e}")
+        logger.error(f"Failed to restore default commands: {e}")
 
 async def set_conversation_keyboard(update: Update, context, user_role: str):
     """Set conversation keyboard with cancel button and update commands."""
