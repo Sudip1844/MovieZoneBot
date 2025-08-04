@@ -18,49 +18,53 @@ REQUEST_MOVIE_NAME, DELETE_MOVIE_NAME, SHOW_STATS_MOVIE_NAME = range(3)
 # --- Search Movies ---
 
 async def search_movies(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle search movies button."""
-    user_id = update.effective_user.id
+    """Handle movie search functionality."""
+    await update.message.reply_text(
+        "🔍 Search Movies\n\n"
+        "Please type the name of the movie you're looking for:"
+    )
+
+async def handle_search_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle the actual search query from user."""
     query = update.message.text
-
-    logger.info(f"User {user_id} clicked search button")
-
-    # Set search context and ask for input
-    context.user_data['waiting_for_search'] = True
-    await update.message.reply_text("🔍 Enter the movie name you want to search for:")
-
-async def handle_search_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle text input when user is in search mode."""
-    user_id = update.effective_user.id
-    query = update.message.text
-
-    # Only handle if user is in search mode
-    if not context.user_data.get('waiting_for_search'):
+    
+    # Skip if this is a keyboard button or command
+    if query in ["🔍 Search Movies", "📂 Browse Categories", "🙏 Request Movie", "➕ Add Movie", "📊 Show Requests", "👥 Manage Admins", "📢 Manage Channels", "❓ Help"]:
         return
-
-    logger.info(f"User {user_id} searched for: {query}")
-
-    # Clear search context
-    context.user_data['waiting_for_search'] = False
-
-    # Cancel button handling
-    if query == "❌ Cancel":
-        from utils import get_main_keyboard
-        user_role = db.get_user_role(user_id)
-        keyboard = get_main_keyboard(user_role)
-
-        await update.message.reply_text("❌ Search cancelled.", reply_markup=keyboard)
+    
+    if query.startswith('/'):
         return
-
-    # Don't handle help or other commands
-    if query.startswith('/') or query == "❓ Help":
+    
+    # Check if user is in a conversation - if so, don't handle as search
+    if context.user_data and ('conversation_state' in context.user_data or 'new_admin' in context.user_data or 'new_channel' in context.user_data):
         return
-
+    
+    # Check if user is using alphabet filter (single letter after selecting "All" category)
+    if len(query) == 1 and query.isalpha():
+        logger.info(f"User {update.effective_user.id} requested alphabet filter for letter: {query}")
+        movies = db.get_movies_by_first_letter(query.upper(), limit=30)
+        
+        if not movies:
+            await update.message.reply_text(f"❌ No movies found starting with '{query.upper()}'.")
+            return
+        
+        # Show movies in grid format like category browsing
+        from utils import create_movie_grid_markup
+        reply_markup = create_movie_grid_markup(movies, prefix="view")
+        await update.message.reply_html(
+            f"🌐 Movies starting with '{query.upper()}' ({len(movies)} found):",
+            reply_markup=reply_markup
+        )
+        return
+    
+    logger.info(f"User {update.effective_user.id} searched for: {query}")
+    
     movies = db.search_movies(query, limit=10)
-
+    
     if not movies:
         await update.message.reply_text(f"❌ No movies found for '{query}'. Try using different keywords or request it using the 'Request Movie' button.")
         return
-
+    
     if len(movies) == 1:
         # Only one movie found, show details directly
         movie = movies[0]
@@ -70,7 +74,7 @@ async def handle_search_input(update: Update, context: ContextTypes.DEFAULT_TYPE
         message_text = f"🎬 Found {len(movies)} movies for '{query}':\n\n"
         for i, movie in enumerate(movies, 1):
             message_text += f"{i}. {movie.get('title', 'Unknown')}\n"
-
+        
         reply_markup = get_movie_search_results_markup(movies)
         await update.message.reply_html(message_text, reply_markup=reply_markup)
 
@@ -84,16 +88,16 @@ async def show_movie_details(update: Update, context: ContextTypes.DEFAULT_TYPE,
                     f"⭐ IMDb: {movie.get('imdb_rating', 'N/A')}/10\n" \
                     f"🎭 Languages: {', '.join(movie.get('languages', []))}\n" \
                     f"🎪 Categories: {', '.join(movie.get('categories', []))}"
-
+    
     # Create quality buttons
     files = movie.get('files', {})
     buttons = []
     for quality in files.keys():
         callback_data = f"quality_{movie['movie_id']}_{quality}"
         buttons.append([InlineKeyboardButton(f"🎬 {quality}", callback_data=callback_data)])
-
+    
     quality_buttons_markup = InlineKeyboardMarkup(buttons)
-
+    
     thumbnail_id = movie.get('thumbnail_file_id')
     if thumbnail_id:
         try:
@@ -125,13 +129,13 @@ async def browse_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 async def request_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the movie request conversation."""
     from utils import set_conversation_keyboard, set_conversation_commands
-
+    
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
-
+    
     # Set conversation commands
     await set_conversation_commands(update, context)
-
+    
     await update.message.reply_text(
         "🙏 Request a Movie\n\n"
         "Please tell me the name of the movie you want to request:\n\n"
@@ -144,7 +148,7 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     """Handle the movie request from user."""
     movie_name = update.message.text.strip()
     user_id = update.effective_user.id
-
+    
     # Check if user sent /cancel command (strict checking)
     if movie_name.lower() in ['/cancel', 'cancel', '❌ cancel'] or movie_name == '❌ Cancel':
         from utils import restore_main_keyboard
@@ -153,7 +157,7 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         await update.message.reply_text("❌ Movie request cancelled.", reply_markup=keyboard)
         context.user_data.clear()
         return ConversationHandler.END
-
+    
     # First check if the movie already exists
     existing_movies = db.search_movies(movie_name, limit=5)
     if existing_movies:
@@ -162,10 +166,10 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         for i, movie in enumerate(existing_movies, 1):
             message_text += f"{i}. {movie.get('title', 'Unknown')}\n"
             buttons.append([InlineKeyboardButton(f"🎬 {movie.get('title', 'Unknown')}", callback_data=f"view_{movie['movie_id']}")])
-
+        
         buttons.append([InlineKeyboardButton("📝 Still Request This Movie", callback_data=f"force_request")])
         context.user_data['requested_movie'] = movie_name
-
+        
         await update.message.reply_html(
             message_text + "\nIf none of these match what you're looking for, you can still request it:",
             reply_markup=InlineKeyboardMarkup(buttons)
@@ -175,11 +179,11 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         # Movie not found, add to requests
         request_id = db.add_movie_request(user_id, movie_name)
         from utils import restore_main_keyboard
-
+        
         # Restore main keyboard
         user_role = db.get_user_role(update.effective_user.id)
         keyboard = await restore_main_keyboard(update, context, user_role)
-
+        
         await update.message.reply_text(
             f"✅ Request Submitted!\n\n"
             f"Your request for '{movie_name}' has been submitted to our admins.\n"
@@ -193,19 +197,19 @@ async def force_request_movie(update: Update, context: ContextTypes.DEFAULT_TYPE
     """Force add a movie request even if similar movies exist."""
     query = update.callback_query
     await query.answer()
-
+    
     movie_name = context.user_data.get('requested_movie')
     if not movie_name:
         await query.edit_message_text("Error: Movie name not found. Please try again.")
         return ConversationHandler.END
-
+    
     user_id = query.from_user.id
     request_id = db.add_movie_request(user_id, movie_name)
-
+    
     from utils import restore_default_commands
     # Restore default commands
     await restore_default_commands(context, query.message.chat_id)
-
+    
     await query.edit_message_text(
         f"✅ Request Submitted!\n\n"
         f"Your request for '{movie_name}' has been submitted to our admins.\n"
@@ -220,21 +224,21 @@ async def force_request_movie(update: Update, context: ContextTypes.DEFAULT_TYPE
 async def show_requests(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show pending movie requests to admins/owners."""
     pending_requests = db.get_pending_requests(limit=10)
-
+    
     if not pending_requests:
         await update.message.reply_text("🎉 No pending movie requests at the moment!")
         return
-
+    
     await update.message.reply_text(f"📋 Found {len(pending_requests)} pending movie requests:\n")
-
+    
     # Send each request as individual message
     for i, req in enumerate(pending_requests, 1):
         user_info = f"@{req['users'].get('username')}" if req['users'].get('username') else f"ID: {req['user_id']}"
-
+        
         message_text = f"Request #{i}: {req['movie_name']}\n"
         message_text += f"👤 Requested by: {user_info}\n"
         message_text += f"🗓️ On: {req['requested_at'][:10]}"
-
+        
         # Individual buttons for each request
         buttons = [
             [
@@ -242,7 +246,7 @@ async def show_requests(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 InlineKeyboardButton("🗑️ Delete", callback_data=f"req_del_{req['request_id']}")
             ]
         ]
-
+        
         await update.message.reply_text(
             message_text,
             reply_markup=InlineKeyboardMarkup(buttons)
@@ -254,13 +258,13 @@ async def show_requests(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 async def remove_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the remove movie conversation."""
     from utils import set_conversation_keyboard, set_conversation_commands
-
+    
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
-
+    
     # Set conversation commands
     await set_conversation_commands(update, context)
-
+    
     await update.message.reply_text(
         "🗑️ Remove Movie\n\n"
         "Please enter the name of the movie you want to remove:\n\n"
@@ -272,7 +276,7 @@ async def remove_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def get_movie_to_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle movie deletion."""
     movie_name = update.message.text
-
+    
     # Check if user sent /cancel command or pressed cancel button
     if (movie_name.lower() == '/cancel' or 
         movie_name.lower() == 'cancel' or
@@ -283,22 +287,22 @@ async def get_movie_to_delete(update: Update, context: ContextTypes.DEFAULT_TYPE
         await update.message.reply_text("❌ Movie deletion cancelled.", reply_markup=keyboard)
         context.user_data.clear()
         return ConversationHandler.END
-
+    
     movies = db.search_movies(movie_name, limit=10)
     if not movies:
         await update.message.reply_text(f"❌ No movies found with name '{movie_name}'. Please try again or /cancel.")
         return DELETE_MOVIE_NAME
-
+    
     if len(movies) == 1:
         # Only one movie found, show confirmation
         movie = movies[0]
         context.user_data['movie_to_delete'] = movie
-
+        
         keyboard = [
             [InlineKeyboardButton("✅ Yes, Delete", callback_data="confirm_delete")],
             [InlineKeyboardButton("❌ Cancel", callback_data="cancel_delete")]
         ]
-
+        
         await update.message.reply_html(
             f"🗑️ Confirm Deletion\n\n"
             f"Are you sure you want to delete:\n"
@@ -311,13 +315,13 @@ async def get_movie_to_delete(update: Update, context: ContextTypes.DEFAULT_TYPE
         # Multiple movies found
         message_text = f"🎬 Found {len(movies)} movies:\n\n"
         buttons = []
-
+        
         for i, movie in enumerate(movies, 1):
             message_text += f"{i}. {movie.get('title', 'Unknown')}\n"
             buttons.append([InlineKeyboardButton(f"🗑️ Delete: {movie.get('title', 'Unknown')}", callback_data=f"delete_{movie['movie_id']}")])
-
+        
         buttons.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_delete")])
-
+        
         await update.message.reply_html(
             message_text + "\nSelect the movie you want to delete:",
             reply_markup=InlineKeyboardMarkup(buttons)
@@ -328,7 +332,7 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
     """Handle movie deletion confirmation."""
     query = update.callback_query
     await query.answer()
-
+    
     if query.data == "cancel_delete":
         from utils import restore_default_commands
         await restore_default_commands(context, query.message.chat_id)
@@ -344,7 +348,7 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
                 await query.edit_message_text("❌ Failed to delete the movie. Please try again.")
         else:
             await query.edit_message_text("❌ Error: Movie information not found.")
-
+        
         from utils import restore_default_commands
         await restore_default_commands(context, query.message.chat_id)
         return ConversationHandler.END
@@ -367,13 +371,13 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
 async def show_stats_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the show stats conversation."""
     from utils import set_conversation_keyboard, set_conversation_commands
-
+    
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await set_conversation_keyboard(update, context, user_role)
-
+    
     # Set conversation commands
     await set_conversation_commands(update, context)
-
+    
     await update.message.reply_text(
         "📊 Movie Statistics\n\n"
         "Please enter the name of the movie to see its statistics:\n\n"
@@ -385,7 +389,7 @@ async def show_stats_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def get_movie_for_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle movie stats request."""
     movie_name = update.message.text
-
+    
     # Check if user sent cancel command or pressed cancel button
     if (movie_name.lower() == '/cancel' or 
         movie_name.lower() == 'cancel' or
@@ -396,12 +400,12 @@ async def get_movie_for_stats(update: Update, context: ContextTypes.DEFAULT_TYPE
         await update.message.reply_text("❌ Stats request cancelled.", reply_markup=keyboard)
         context.user_data.clear()
         return ConversationHandler.END
-
+    
     movies = db.search_movies(movie_name, limit=10)
     if not movies:
         await update.message.reply_text(f"❌ No movies found with name '{movie_name}'. Please try again or /cancel.")
         return SHOW_STATS_MOVIE_NAME
-
+    
     if len(movies) == 1:
         # Only one movie found, show stats
         movie = movies[0]
@@ -411,11 +415,11 @@ async def get_movie_for_stats(update: Update, context: ContextTypes.DEFAULT_TYPE
         # Multiple movies found
         message_text = f"🎬 Found {len(movies)} movies:\n\n"
         buttons = []
-
+        
         for i, movie in enumerate(movies, 1):
             message_text += f"{i}. {movie.get('title', 'Unknown')}\n"
             buttons.append([InlineKeyboardButton(f"📊 {movie.get('title', 'Unknown')}", callback_data=f"stats_{movie['movie_id']}")])
-
+        
         await update.message.reply_html(
             message_text + "\nSelect the movie to see statistics:",
             reply_markup=InlineKeyboardMarkup(buttons)
@@ -432,14 +436,14 @@ async def show_movie_stats(update: Update, context: ContextTypes.DEFAULT_TYPE, m
     stats_text += f"🗂️ Available Qualities: {', '.join(movie.get('files', {}).keys())}\n"
     stats_text += f"🌐 Languages: {', '.join(movie.get('languages', []))}\n"
     stats_text += f"📂 Categories: {', '.join(movie.get('categories', []))}\n"
-
+    
     await update.message.reply_html(stats_text)
 
 async def handle_stats_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle stats callback from inline buttons."""
     query = update.callback_query
     await query.answer()
-
+    
     if query.data.startswith("stats_"):
         movie_id = int(query.data.split("_")[1])
         movie = db.get_movie_details(movie_id)
@@ -447,7 +451,7 @@ async def handle_stats_callback(update: Update, context: ContextTypes.DEFAULT_TY
             await show_movie_stats(query, context, movie)
         else:
             await query.edit_message_text("❌ Error: Movie not found.")
-
+    
     from utils import restore_default_commands
     await restore_default_commands(context, query.message.chat_id)
     return ConversationHandler.END
@@ -455,10 +459,10 @@ async def handle_stats_callback(update: Update, context: ContextTypes.DEFAULT_TY
 async def cancel_movie_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel movie-related conversation."""
     from utils import restore_main_keyboard
-
+    
     user_role = db.get_user_role(update.effective_user.id)
     keyboard = await restore_main_keyboard(update, context, user_role)
-
+    
     await update.message.reply_text("❌ Movie action cancelled.", reply_markup=keyboard)
     context.user_data.clear()
     return ConversationHandler.END
@@ -524,10 +528,7 @@ movie_handlers = [
     # Regular handlers
     MessageHandler(filters.Regex("^🔍 Search Movies$"), search_movies),
     MessageHandler(filters.Regex("^📂 Browse Categories$"), browse_categories),
-    MessageHandler(filters.Regex("^🙏 Request Movie$"), request_movie_start),
-    MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.Regex("^(❓ Help|❌ Cancel)$"), handle_search_input),
-    CallbackQueryHandler(handle_category_selection, pattern="^category_"),
-    CallbackQueryHandler(handle_movie_selection, pattern="^movie_"),
-    CallbackQueryHandler(handle_download_selection, pattern="^download_"),
-    CallbackQueryHandler(handle_pagination, pattern="^(prev|next)_")
+    MessageHandler(filters.Regex("^📊 Show Requests$"), show_requests),
+    # Text search handler (should be last to catch search queries)
+    MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.REPLY, handle_search_query)
 ]
