@@ -178,14 +178,15 @@ async def set_conversation_commands(update: Update, context):
         else:
             chat_id = update.effective_chat.id
             
-        # Clear all commands for this chat - no commands in hamburger menu during conversations
+        # Set only /cancel command for command box (not hamburger menu)
+        conversation_commands = [BotCommand("cancel", "Cancel current action")]
         await context.bot.set_my_commands(
-            commands=[],  # Empty commands list removes all from hamburger menu
+            commands=conversation_commands,
             scope=BotCommandScopeChat(chat_id=chat_id)
         )
-        logger.info(f"Cleared hamburger menu commands for chat {chat_id} during conversation")
+        logger.info(f"Set /cancel command for command box in chat {chat_id}")
     except Exception as e:
-        logger.error(f"Failed to clear conversation commands: {e}")
+        logger.error(f"Failed to set conversation commands: {e}")
 
 async def restore_default_commands(update: Update, context):
     """Restore default commands when conversation ends."""
