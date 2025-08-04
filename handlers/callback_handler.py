@@ -123,6 +123,24 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
             action, request_id = parts[1], int(parts[2])
             await handle_request_action(update, context, request_id, action)
 
+        elif callback_data == 'browse_categories':
+            # Handle "Back to Categories" button - Show main categories
+            from config import CATEGORIES
+            
+            # Create category buttons in 2-column layout
+            buttons = []
+            for i in range(0, len(CATEGORIES), 2):
+                row = []
+                for j in range(2):
+                    if i + j < len(CATEGORIES):
+                        category = CATEGORIES[i + j]
+                        row.append(InlineKeyboardButton(f"🎪 {category}", callback_data=f"cat_{category.replace(' ', '_')}"))
+                if row:
+                    buttons.append(row)
+            
+            reply_markup = InlineKeyboardMarkup(buttons)
+            await query.edit_message_text("📂 Browse Categories\n\nSelect a category to explore movies:", reply_markup=reply_markup)
+
         elif prefix == 'cat':
             # Handle category selection - Show movies in 3x10 grid format
             category = '_'.join(parts[1:]).replace('_', ' ')
