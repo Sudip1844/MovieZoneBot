@@ -66,6 +66,15 @@ async def add_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def get_admin_userid(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Gets the user ID of the potential admin."""
+    # Check if user sent /cancel command
+    if update.message.text and (update.message.text.lower() == '/cancel' or update.message.text.lower() == 'cancel'):
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Admin addition cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
     user_id = None
     first_name = None
     username = None
@@ -96,6 +105,16 @@ async def get_admin_userid(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def get_admin_short_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Gets the short name for the admin."""
     short_name = update.message.text
+    
+    # Check if user sent /cancel command
+    if short_name.lower() == '/cancel' or short_name.lower() == 'cancel':
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Admin addition cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
     context.user_data['new_admin']['short_name'] = short_name
     
     admin = context.user_data['new_admin']
@@ -263,6 +282,15 @@ async def get_channel_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     """Gets the channel link."""
     channel_link = update.message.text
     
+    # Check if user sent /cancel command
+    if channel_link.lower() == '/cancel' or channel_link.lower() == 'cancel':
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Channel addition cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
     # Extract channel username from link
     if "t.me/" in channel_link:
         channel_username = channel_link.split("t.me/")[-1].replace("@", "")
@@ -307,6 +335,16 @@ async def get_channel_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def get_channel_short_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Gets the short name for the channel."""
     short_name = update.message.text
+    
+    # Check if user sent /cancel command
+    if short_name.lower() == '/cancel' or short_name.lower() == 'cancel':
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Channel addition cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
     context.user_data['new_channel']['short_name'] = short_name
     
     channel = context.user_data['new_channel']

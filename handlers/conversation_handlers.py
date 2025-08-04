@@ -88,7 +88,18 @@ async def get_thumbnail(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
 async def get_title(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """ টাইটেল সংগ্রহ করে। """
-    context.user_data['movie_data']['title'] = update.message.text
+    title = update.message.text
+    
+    # Check if user sent /cancel command
+    if title.lower() == '/cancel' or title.lower() == 'cancel':
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Movie addition cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
+    context.user_data['movie_data']['title'] = title
     await update.message.reply_text("✅ Title saved.\n\nStep 3: Enter the release year (e.g., 2023).")
     return GET_RELEASE_YEAR
 

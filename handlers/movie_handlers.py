@@ -131,6 +131,15 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     movie_name = update.message.text
     user_id = update.effective_user.id
     
+    # Check if user sent /cancel command
+    if movie_name.lower() == '/cancel' or movie_name.lower() == 'cancel':
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Movie request cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
     # First check if the movie already exists
     existing_movies = db.search_movies(movie_name, limit=5)
     if existing_movies:
@@ -250,6 +259,15 @@ async def get_movie_to_delete(update: Update, context: ContextTypes.DEFAULT_TYPE
     """Handle movie deletion."""
     movie_name = update.message.text
     
+    # Check if user sent /cancel command
+    if movie_name.lower() == '/cancel' or movie_name.lower() == 'cancel':
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Movie deletion cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
     movies = db.search_movies(movie_name, limit=10)
     if not movies:
         await update.message.reply_text(f"❌ No movies found with name '{movie_name}'. Please try again or /cancel.")
@@ -351,6 +369,15 @@ async def show_stats_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def get_movie_for_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle movie stats request."""
     movie_name = update.message.text
+    
+    # Check if user sent /cancel command
+    if movie_name.lower() == '/cancel' or movie_name.lower() == 'cancel':
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Stats request cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
     
     movies = db.search_movies(movie_name, limit=10)
     if not movies:
