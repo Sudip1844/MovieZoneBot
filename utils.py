@@ -167,14 +167,60 @@ def get_movie_search_results_markup(movies: List[dict]) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 # --- Dynamic Bot Commands Management ---
+async def set_conversation_commands(update: Update, context):
+    """Set conversation commands (only /cancel visible during conversations)."""
+    from telegram import BotCommand, BotCommandScopeChat
+    
+    try:
+        # Set only /cancel command during conversations
+        conversation_commands = [BotCommand("cancel", "Cancel current action")]
+        await context.bot.set_my_commands(
+            commands=conversation_commands,
+            scope=BotCommandScopeChat(chat_id=update.effective_chat.id)
+        )
+        logger.info(f"Set conversation commands for chat {update.effective_chat.id}")
+    except Exception as e:
+        logger.error(f"Failed to set conversation commands: {e}")
+
+async def restore_default_commands(update: Update, context):
+    """Restore default commands when conversation ends."""
+    from telegram import BotCommand, BotCommandScopeChat
+    
+    try:
+        # Restore default commands
+        default_commands = [
+            BotCommand("start", "Start the bot"),
+            BotCommand("help", "Get help and instructions")
+        ]
+        await context.bot.set_my_commands(
+            commands=default_commands,
+            scope=BotCommandScopeChat(chat_id=update.effective_chat.id)
+        )
+        logger.info(f"Restored default commands for chat {update.effective_chat.id}")
+    except Exception as e:
+        logger.error(f"Failed to restore default commands: {e}")
+
 async def set_conversation_keyboard(update: Update, context, user_role: str):
-    """Set conversation keyboard with cancel button."""
+    """Set conversation keyboard with cancel button and update commands."""
     keyboard = get_conversation_keyboard(user_role)
     # Store the original keyboard to restore later
     context.user_data['original_keyboard'] = get_main_keyboard(user_role)
+    
+    # Set conversation commands (only /cancel visible)
+    await set_conversation_commands(update, context)
+    
     return keyboard
 
 async def restore_main_keyboard(update: Update, context, user_role: str):
-    """Restore main keyboard when conversation ends."""
+    """Restore main keyboard and commands when conversation ends."""
     keyboard = context.user_data.get('original_keyboard', get_main_keyboard(user_role))
+    
+    # Restore default commands
+    await restore_default_commands(update, context)
+    
+    return keyboard
+    
+    # Restore default commands
+    await restore_default_commands(update, context)
+    
     return keyboard

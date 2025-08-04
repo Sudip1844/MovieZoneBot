@@ -86,6 +86,18 @@ async def welcome_new_member(update: Update, context: ContextTypes.DEFAULT_TYPE)
         except Exception as e:
             logger.error(f"Failed to send welcome message to new channel member {user.id}: {e}")
 
+# --- Global Cancel Handler ---
+async def global_cancel_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /cancel command globally to end any conversation."""
+    from utils import restore_main_keyboard
+    import database as db
+    
+    user_role = db.get_user_role(update.effective_user.id)
+    keyboard = await restore_main_keyboard(update, context, user_role)
+    
+    await update.message.reply_text("❌ Action cancelled.", reply_markup=keyboard)
+    context.user_data.clear()
+
 # --- Error Handler ---
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Log the error and send a telegram message to notify the developer."""
@@ -133,7 +145,10 @@ def main() -> None:
     for handler in movie_handlers:
         application.add_handler(handler)
         
-    # 7. Error handler
+    # 7. Global cancel command handler
+    application.add_handler(CommandHandler('cancel', global_cancel_handler))
+    
+    # 8. Error handler
     application.add_error_handler(error_handler)
 
     # --- Set Default Bot Commands for Menu ---

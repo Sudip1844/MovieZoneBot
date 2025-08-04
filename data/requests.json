@@ -45,8 +45,9 @@
       "request_id": 6,
       "user_id": 7778563160,
       "movie_name": "❌ Cancel",
-      "status": "pending",
-      "requested_at": "2025-08-03T18:23:20.234537"
+      "status": "accepted",
+      "requested_at": "2025-08-03T18:23:20.234537",
+      "updated_at": "2025-08-04T04:20:38.032731"
     }
   }
 }

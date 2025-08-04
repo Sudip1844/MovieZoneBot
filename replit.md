@@ -22,6 +22,13 @@ Preferred communication style: Simple, everyday language.
   - Updated text search handler to not interfere with ongoing conversations
   - Admin and channel addition now works correctly from inline buttons
   - Fixed MarkdownV2 parsing errors in confirmation messages by switching to plain text format
+- **Enhanced Dynamic Command Menu System**: Fixed universal /cancel command availability across all conversations
+  - Implemented per-chat command scope management using BotCommandScopeChat
+  - /cancel command now appears in command menu during ALL conversations (user, admin, owner)
+  - Other commands automatically hide during conversations and restore when conversations end
+  - Added global cancel handler to handle /cancel from any conversation state
+  - Enhanced command management functions in utils.py for consistent behavior across all handlers
+  - Applies to: add movie, request movie, add/remove admin, add/remove channel, show stats, remove movie
 
 ### Recent Updates - August 3, 2025
 - **Fixed Movie Posting to Channels**: Enhanced channel link validation system

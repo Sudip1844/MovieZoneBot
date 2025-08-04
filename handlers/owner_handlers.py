@@ -166,9 +166,6 @@ async def remove_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE)
         reply_markup = InlineKeyboardMarkup(buttons)
         await query.edit_message_text("Select admin to remove:", reply_markup=reply_markup)
     else:
-        # Set conversation commands
-        await set_conversation_commands(context, update.effective_chat.id)
-        
         admins = db.get_all_admins()
         if not admins:
             await update.message.reply_text("There are no admins to remove.")
