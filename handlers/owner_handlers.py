@@ -53,7 +53,7 @@ async def add_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await query.edit_message_text(
             "Please forward a message from the user you want to make an admin.\n"
             "Or, send their Telegram User ID.\n\n"
-            "Type /cancel to cancel this action."
+            "To cancel at any time, press ❌ Cancel button."
         )
     else:
         await update.message.reply_text(
@@ -268,7 +268,7 @@ async def add_channel_start(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         
         await query.edit_message_text(
             "Please send the channel or group link (e.g., https://t.me/moviezone969).\n\n"
-            "Type /cancel to cancel this action."
+            "To cancel at any time, press ❌ Cancel button."
         )
     else:
         await update.message.reply_text(
