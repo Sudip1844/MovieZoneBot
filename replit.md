@@ -24,9 +24,9 @@ Preferred communication style: Simple, everyday language.
   - Fixed MarkdownV2 parsing errors in confirmation messages by switching to plain text format
 - **Enhanced Dynamic Command Menu System**: Implemented uniform /cancel command approach across all conversations
   - Implemented per-chat command scope management using BotCommandScopeChat
-  - **Uniform Approach**: /cancel command appears in command box during ALL conversations (matching Add Movie behavior)
-  - Consistent command box appearance across all conversation types (admin, channel, movie management)
-  - Eliminates text-based "Type /cancel" instructions in favor of proper command box integration
+  - **Hamburger Menu Completely Cleared**: During ALL conversations, hamburger menu is completely empty (no /cancel command)
+  - /cancel command only available through command box input (like Add Movie conversation)
+  - Consistent experience across all conversation types with clean hamburger menu interface
   - Other commands automatically hide during conversations and restore when conversations end
   - Added global cancel handler to handle /cancel from any conversation state
   - Enhanced command management functions in utils.py for consistent behavior across all handlers

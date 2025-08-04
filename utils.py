@@ -168,7 +168,7 @@ def get_movie_search_results_markup(movies: List[dict]) -> InlineKeyboardMarkup:
 
 # --- Dynamic Bot Commands Management ---
 async def set_conversation_commands(update: Update, context):
-    """Set /cancel command in command box during conversations (like Add Movie does)."""
+    """Clear hamburger menu completely during conversations - NO commands in hamburger menu."""
     from telegram import BotCommand, BotCommandScopeChat
     
     try:
@@ -178,15 +178,14 @@ async def set_conversation_commands(update: Update, context):
         else:
             chat_id = update.effective_chat.id
             
-        # Set only /cancel command for command box (same as Add Movie conversation)
-        conversation_commands = [BotCommand("cancel", "Cancel current action")]
+        # REMOVE ALL COMMANDS from hamburger menu - completely empty
         await context.bot.set_my_commands(
-            commands=conversation_commands,
+            commands=[],  # Empty array = no commands in hamburger menu
             scope=BotCommandScopeChat(chat_id=chat_id)
         )
-        logger.info(f"Set /cancel command in command box for chat {chat_id}")
+        logger.info(f"CLEARED hamburger menu completely for chat {chat_id}")
     except Exception as e:
-        logger.error(f"Failed to set conversation commands: {e}")
+        logger.error(f"Failed to clear hamburger menu: {e}")
 
 async def restore_default_commands(update: Update, context):
     """Restore default commands when conversation ends."""
