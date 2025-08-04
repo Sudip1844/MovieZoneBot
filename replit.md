@@ -22,10 +22,11 @@ Preferred communication style: Simple, everyday language.
   - Updated text search handler to not interfere with ongoing conversations
   - Admin and channel addition now works correctly from inline buttons
   - Fixed MarkdownV2 parsing errors in confirmation messages by switching to plain text format
-- **Enhanced Dynamic Command Menu System**: Fixed universal /cancel command availability across all conversations
+- **Enhanced Dynamic Command Menu System**: Implemented uniform /cancel command approach across all conversations
   - Implemented per-chat command scope management using BotCommandScopeChat
-  - /cancel command now appears in both hamburger menu and command input during conversations
-  - Due to Telegram API limitation, commands cannot be separated between hamburger menu and command input field
+  - **Uniform Approach**: Hamburger menu completely cleared during ALL conversations for consistency
+  - /cancel command available ONLY through text input (command box) during conversations
+  - Eliminates inconsistent dual-approach between hamburger menu and command box
   - Other commands automatically hide during conversations and restore when conversations end
   - Added global cancel handler to handle /cancel from any conversation state
   - Enhanced command management functions in utils.py for consistent behavior across all handlers

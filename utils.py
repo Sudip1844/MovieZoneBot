@@ -168,7 +168,7 @@ def get_movie_search_results_markup(movies: List[dict]) -> InlineKeyboardMarkup:
 
 # --- Dynamic Bot Commands Management ---
 async def set_conversation_commands(update: Update, context):
-    """Set conversation commands (only /cancel visible during conversations)."""
+    """Clear hamburger menu during conversations - /cancel will be available in command box through text input handling."""
     from telegram import BotCommand, BotCommandScopeChat
     
     try:
@@ -178,15 +178,14 @@ async def set_conversation_commands(update: Update, context):
         else:
             chat_id = update.effective_chat.id
             
-        # Set only /cancel command for command box (not hamburger menu)
-        conversation_commands = [BotCommand("cancel", "Cancel current action")]
+        # Clear all commands from hamburger menu during conversations
         await context.bot.set_my_commands(
-            commands=conversation_commands,
+            commands=[],  # Empty list removes all commands from hamburger menu
             scope=BotCommandScopeChat(chat_id=chat_id)
         )
-        logger.info(f"Set /cancel command for command box in chat {chat_id}")
+        logger.info(f"Cleared hamburger menu commands during conversation in chat {chat_id}")
     except Exception as e:
-        logger.error(f"Failed to set conversation commands: {e}")
+        logger.error(f"Failed to clear conversation commands: {e}")
 
 async def restore_default_commands(update: Update, context):
     """Restore default commands when conversation ends."""
@@ -199,7 +198,7 @@ async def restore_default_commands(update: Update, context):
         else:
             chat_id = update.effective_chat.id
             
-        # Restore default commands to hamburger menu
+        # Restore default commands to hamburger menu (start & help only)
         default_commands = [
             BotCommand("start", "Start the bot"),
             BotCommand("help", "Get help and instructions")
