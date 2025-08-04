@@ -132,7 +132,7 @@ async def get_movie_request(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     user_id = update.effective_user.id
     
     # Check if user sent /cancel command (strict checking)
-    if movie_name.lower() in ['/cancel', 'cancel', '❌ cancel']:
+    if movie_name.lower() in ['/cancel', 'cancel', '❌ cancel'] or movie_name == '❌ Cancel':
         from utils import restore_main_keyboard
         user_role = db.get_user_role(update.effective_user.id)
         keyboard = await restore_main_keyboard(update, context, user_role)
@@ -370,8 +370,10 @@ async def get_movie_for_stats(update: Update, context: ContextTypes.DEFAULT_TYPE
     """Handle movie stats request."""
     movie_name = update.message.text
     
-    # Check if user sent /cancel command
-    if movie_name.lower() == '/cancel' or movie_name.lower() == 'cancel':
+    # Check if user sent cancel command or pressed cancel button
+    if (movie_name.lower() == '/cancel' or 
+        movie_name.lower() == 'cancel' or
+        movie_name == '❌ Cancel'):
         from utils import restore_main_keyboard
         user_role = db.get_user_role(update.effective_user.id)
         keyboard = await restore_main_keyboard(update, context, user_role)

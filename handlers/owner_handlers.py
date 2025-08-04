@@ -66,8 +66,12 @@ async def add_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def get_admin_userid(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Gets the user ID of the potential admin."""
-    # Check if user sent /cancel command
-    if update.message.text and (update.message.text.lower() == '/cancel' or update.message.text.lower() == 'cancel'):
+    # Check if user sent cancel command or pressed cancel button
+    if update.message.text and (
+        update.message.text.lower() == '/cancel' or 
+        update.message.text.lower() == 'cancel' or
+        update.message.text == '❌ Cancel'
+    ):
         from utils import restore_main_keyboard
         user_role = db.get_user_role(update.effective_user.id)
         keyboard = await restore_main_keyboard(update, context, user_role)
@@ -106,8 +110,10 @@ async def get_admin_short_name(update: Update, context: ContextTypes.DEFAULT_TYP
     """Gets the short name for the admin."""
     short_name = update.message.text
     
-    # Check if user sent /cancel command
-    if short_name.lower() == '/cancel' or short_name.lower() == 'cancel':
+    # Check if user sent cancel command or pressed cancel button
+    if (short_name.lower() == '/cancel' or 
+        short_name.lower() == 'cancel' or
+        short_name == '❌ Cancel'):
         from utils import restore_main_keyboard
         user_role = db.get_user_role(update.effective_user.id)
         keyboard = await restore_main_keyboard(update, context, user_role)
@@ -282,8 +288,10 @@ async def get_channel_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     """Gets the channel link."""
     channel_link = update.message.text
     
-    # Check if user sent /cancel command
-    if channel_link.lower() == '/cancel' or channel_link.lower() == 'cancel':
+    # Check if user sent cancel command or pressed cancel button
+    if (channel_link.lower() == '/cancel' or 
+        channel_link.lower() == 'cancel' or
+        channel_link == '❌ Cancel'):
         from utils import restore_main_keyboard
         user_role = db.get_user_role(update.effective_user.id)
         keyboard = await restore_main_keyboard(update, context, user_role)
@@ -336,8 +344,10 @@ async def get_channel_short_name(update: Update, context: ContextTypes.DEFAULT_T
     """Gets the short name for the channel."""
     short_name = update.message.text
     
-    # Check if user sent /cancel command
-    if short_name.lower() == '/cancel' or short_name.lower() == 'cancel':
+    # Check if user sent cancel command or pressed cancel button
+    if (short_name.lower() == '/cancel' or 
+        short_name.lower() == 'cancel' or
+        short_name == '❌ Cancel'):
         from utils import restore_main_keyboard
         user_role = db.get_user_role(update.effective_user.id)
         keyboard = await restore_main_keyboard(update, context, user_role)

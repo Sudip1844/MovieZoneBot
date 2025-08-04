@@ -22,6 +22,11 @@ Preferred communication style: Simple, everyday language.
   - All bot commands now available only through reply keyboard buttons
   - Cancel button appears in reply keyboard alongside other commands during conversations
   - Clean interface using only reply keyboard for all interactions
+- **Fixed Cancel Button Handling**: Resolved cancel functionality across all conversation handlers
+  - Updated all conversation handlers to properly recognize "❌ Cancel" button presses
+  - Fixed admin/channel management cancel functionality that was causing "Invalid input" errors
+  - Cancel button now works consistently in: add movie, request movie, add admin, add channel, show stats
+  - Users can cancel any conversation by pressing the "❌ Cancel" button or typing /cancel
 - **Standard Replit Environment Migration Completed**: Successfully adapted project from Replit Agent environment
   - Ensured proper package installation through uv package manager
   - Verified all dependencies are correctly resolved (python-telegram-bot==20.7)

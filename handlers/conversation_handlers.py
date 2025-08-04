@@ -90,8 +90,10 @@ async def get_title(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """ টাইটেল সংগ্রহ করে। """
     title = update.message.text
     
-    # Check if user sent /cancel command
-    if title.lower() == '/cancel' or title.lower() == 'cancel':
+    # Check if user sent cancel command or pressed cancel button
+    if (title.lower() == '/cancel' or 
+        title.lower() == 'cancel' or
+        title == '❌ Cancel'):
         from utils import restore_main_keyboard
         user_role = db.get_user_role(update.effective_user.id)
         keyboard = await restore_main_keyboard(update, context, user_role)
@@ -104,17 +106,56 @@ async def get_title(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return GET_RELEASE_YEAR
 
 async def get_release_year(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data['movie_data']['release_year'] = update.message.text
+    year_text = update.message.text
+    
+    # Check if user sent cancel command or pressed cancel button
+    if (year_text.lower() == '/cancel' or 
+        year_text.lower() == 'cancel' or
+        year_text == '❌ Cancel'):
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Movie addition cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
+    context.user_data['movie_data']['release_year'] = year_text
     await update.message.reply_text("✅ Release year saved.\n\nStep 4: Enter the runtime (e.g., 2hr 14min).")
     return GET_RUNTIME
 
 async def get_runtime(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data['movie_data']['runtime'] = update.message.text
+    runtime_text = update.message.text
+    
+    # Check if user sent cancel command or pressed cancel button
+    if (runtime_text.lower() == '/cancel' or 
+        runtime_text.lower() == 'cancel' or
+        runtime_text == '❌ Cancel'):
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Movie addition cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
+    context.user_data['movie_data']['runtime'] = runtime_text
     await update.message.reply_text("✅ Runtime saved.\n\nStep 5: Enter the IMDb rating (e.g., 8.3).")
     return GET_IMDB_RATING
 
 async def get_imdb_rating(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data['movie_data']['imdb_rating'] = update.message.text
+    rating_text = update.message.text
+    
+    # Check if user sent cancel command or pressed cancel button
+    if (rating_text.lower() == '/cancel' or 
+        rating_text.lower() == 'cancel' or
+        rating_text == '❌ Cancel'):
+        from utils import restore_main_keyboard
+        user_role = db.get_user_role(update.effective_user.id)
+        keyboard = await restore_main_keyboard(update, context, user_role)
+        await update.message.reply_text("❌ Movie addition cancelled.", reply_markup=keyboard)
+        context.user_data.clear()
+        return ConversationHandler.END
+    
+    context.user_data['movie_data']['imdb_rating'] = rating_text
     
     keyboard = build_selection_keyboard(CATEGORIES, set())
     await update.message.reply_text(
