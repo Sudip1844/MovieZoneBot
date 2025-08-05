@@ -65,6 +65,11 @@ def save_json(file_path: str, data: Dict):
 
 # --- User Management Functions ---
 
+def user_exists(user_id: int) -> bool:
+    """Check if a user exists in the database."""
+    users = load_json(USERS_FILE)
+    return str(user_id) in users
+
 def add_user_if_not_exists(user_id: int, first_name: str, username: Optional[str] = None) -> bool:
     """Add a user to the database if they don't exist."""
     users = load_json(USERS_FILE)

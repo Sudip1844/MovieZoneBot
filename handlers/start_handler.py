@@ -26,7 +26,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     from utils import restore_default_commands
     await restore_default_commands(context, update.effective_chat.id)
 
-    # Add user to the database if they don't exist
+    # Check if user is new and add to database if they don't exist
+    is_new_user = not db.user_exists(user.id)
     db.add_user_if_not_exists(user.id, user.first_name, user.username)
     
     # context.args contains the part after the /start command (for deep linking)
@@ -55,14 +56,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 )
             return  # Stop further execution after sending the file
         else:
-            # If the token is invalid or expired
+            # If the token is invalid or expired - don't show welcome message for existing users
             await context.bot.send_message(
                 chat_id=user.id,
                 text="⚠️ Sorry, this download link is invalid or has expired. Please generate a new one from the bot."
             )
+            return  # Stop execution - don't show welcome message for expired links
 
-    # For a normal /start command without a payload
+    # Only show welcome message for completely new users or normal /start command without payload  
     user_role = db.get_user_role(user.id)
+    
+    # Show welcome message only for new users or when explicitly calling /start without payload
+    if not is_new_user and context.args:
+        return  # Skip welcome for existing users coming from expired links
     welcome_message = ""
     if user_role == 'owner':
         welcome_message = f"""👑 Welcome Back, Owner {user.mention_html()}!

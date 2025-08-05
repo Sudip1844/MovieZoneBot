@@ -24,7 +24,7 @@ The application adopts a modular architecture, promoting separation of concerns 
 - **Interaction Model**: Exclusively uses reply keyboard buttons for all user interactions, eliminating the hamburger menu for a cleaner interface.
 - **Cancel Mechanism**: A prominent "❌ Cancel" button is integrated into reply keyboards during conversations for consistent cancellation. The `/cancel` command is also supported via text input.
 - **Dynamic Command Menu**: The command menu (`/start`, `/help`) dynamically hides during ongoing conversations, showing only `/cancel`, and restores upon conversation completion.
-- **Category Browsing**: Movies within categories are displayed in a 3x10 grid format with pagination and easy navigation back to main categories.
+- **Category Browsing**: Movies within categories are displayed in a 3x10 grid format with pagination and easy navigation back to main categories. Grid layout ensures optimal viewing with up to 30 movies per page.
 - **Message Formatting**: Professional, structured layouts with emojis and clear information hierarchy are used consistently across all movie displays, search results, and welcome messages. All bold formatting is removed.
 - **Admin/Channel Management**: Features like managing admins and channels are integrated into existing commands and accessed via dedicated buttons (e.g., "Manage Admins" includes "Add New Admin", "Remove an Admin"). Short names are used for easy identification in removal lists.
 
@@ -40,7 +40,7 @@ The application adopts a modular architecture, promoting separation of concerns 
 - **Ad Integration**: Ad links are generated with secure tokens; users are redirected through an ad page before accessing content.
 
 ### Feature Specifications
-- **User Registration**: Automatic registration on `/start` command with role-appropriate welcome messages.
+- **User Registration**: Automatic registration on `/start` command with role-appropriate welcome messages. Welcome messages are shown only for new users to prevent repetitive messaging when accessing expired download links.
 - **Movie Search & Browse**: Users can search by query or browse categories with detailed movie information and download options.
 - **Movie Request System**: Users can submit movie requests, which admins can manage. Users are notified upon fulfillment.
 - **Admin & Owner Features**: Comprehensive management of users, movies, channels, and requests.
