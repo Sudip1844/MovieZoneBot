@@ -148,12 +148,37 @@ def format_movie_post(movie_details: dict, channel_username: str) -> str:
     
     # ডাউনলোড লিঙ্ক তৈরি
     download_links = ""
+    episode_info = ""
     if is_series:
-        # সিরিজের জন্য একটি মাত্র লিঙ্ক
-        first_episode = next((quality for quality in files.keys() if quality.startswith('E')), None)
-        if first_episode:
-            deep_link = f"https://t.me/{BOT_USERNAME}?start=file_{movie_details['movie_id']}_{first_episode}"
-            download_links = f"Ep1 to Ep(last) || 👉 <a href='{deep_link}'>Click To Download</a> 📥"
+        # Get all episode numbers to find the range
+        episode_files = [quality for quality in files.keys() if quality.startswith('E')]
+        if episode_files:
+            # Extract episode numbers and find the range
+            episode_numbers = []
+            for ep_file in episode_files:
+                try:
+                    # Extract number from formats like "E1", "E01", "E001", etc.
+                    ep_num = int(ep_file[1:])  # Remove 'E' and convert to int
+                    episode_numbers.append(ep_num)
+                except ValueError:
+                    continue
+            
+            if episode_numbers:
+                episode_numbers.sort()
+                first_ep = min(episode_numbers)
+                last_ep = max(episode_numbers)
+                
+                # Format episode range display
+                if first_ep == last_ep:
+                    episode_info = f"Available Episodes: Ep{first_ep}"
+                else:
+                    episode_info = f"Available Episodes: Ep{first_ep} to Ep{last_ep}"
+                
+                # Create download link for first episode
+                first_episode = next((quality for quality in files.keys() if quality.startswith('E')), None)
+                if first_episode:
+                    deep_link = f"https://t.me/{BOT_USERNAME}?start=file_{movie_details['movie_id']}_{first_episode}"
+                    download_links = f"👉 <a href='{deep_link}'>Click To Download</a> 📥"
     else:
         # সিঙ্গেল মুভির জন্য প্রতিটি কোয়ালিটির লিঙ্ক
         qualities = sorted([quality for quality in files.keys() if not quality.startswith('E')])
@@ -187,9 +212,9 @@ def format_movie_post(movie_details: dict, channel_username: str) -> str:
     if imdb_rating != 'N/A':
         post_text += f"⭐️ IMDb Rating: {imdb_rating}/10\n"
     
-    # Add series-specific content for web series
-    if is_series:
-        post_text += "\nAvailable Episode - (Total ep)\n"
+    # Add series-specific episode info
+    if is_series and episode_info:
+        post_text += f"\n{episode_info}\n"
     
     # Add download links and footer
     post_text += f"\n🔗 Download Link Below\n{download_links.strip()}\n\n"
