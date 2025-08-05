@@ -62,6 +62,42 @@ def build_selection_keyboard(options: list, selected_options: set) -> InlineKeyb
 
     return InlineKeyboardMarkup(buttons)
 
+def build_selection_keyboard_with_skip(options: list, selected_options: set) -> InlineKeyboardMarkup:
+    """ ক্যাটাগরি বা ভাষা নির্বাচনের জন্য স্কিপ বাটন সহ কীবোর্ড তৈরি করে। """
+    buttons = []
+    row = []
+    
+    hentai_button = None
+
+    for option in options:
+        # যদি কোনো আইটেম ইতোমধ্যে সিলেক্ট করা থাকে, তবে তার পাশে একটি ✅ চিহ্ন যোগ করা হয়
+        text = f"✅ {option}" if option in selected_options else option
+
+        # Hentai ক্যাটাগরিটি আলাদা রাখা হবে Done বাটনের সাথে
+        if "Hentai" in option:
+            hentai_button = InlineKeyboardButton(text, callback_data=f"select_{option}")
+        else:
+            row.append(InlineKeyboardButton(text, callback_data=f"select_{option}"))
+            if len(row) == 2:
+                buttons.append(row)
+                row = []
+
+    # বাকি বাটনগুলো যোগ করি
+    if row:
+        buttons.append(row)
+
+    # Hentai, Skip, এবং Done বাটন একসাথে
+    last_row = []
+    if hentai_button:
+        last_row.append(hentai_button)
+    last_row.append(InlineKeyboardButton("⏭️ Skip", callback_data="select_skip"))
+    buttons.append(last_row)
+    
+    # Done button in a separate row
+    buttons.append([InlineKeyboardButton("➡️ Done", callback_data="select_done")])
+
+    return InlineKeyboardMarkup(buttons)
+
 # --- Conversation Handler Functions ---
 
 @restricted(allowed_roles=['owner', 'admin'])
@@ -117,7 +153,18 @@ async def get_title(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         return ConversationHandler.END
 
     context.user_data['movie_data']['title'] = title
-    await update.message.reply_text("✅ Title saved.\n\nStep 3: Enter the release year (e.g., 2023).")
+    
+    # Add skip button for release year
+    skip_keyboard = [
+        [KeyboardButton("⏭️ Skip Release Year")],
+        [KeyboardButton("❌ Cancel")]
+    ]
+    keyboard = ReplyKeyboardMarkup(skip_keyboard, resize_keyboard=True)
+    
+    await update.message.reply_text(
+        "✅ Title saved.\n\nStep 3: Enter the release year (e.g., 2023).\nOr press '⏭️ Skip Release Year' to use default (N/A).",
+        reply_markup=keyboard
+    )
     return GET_RELEASE_YEAR
 
 async def get_release_year(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -134,8 +181,22 @@ async def get_release_year(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         context.user_data.clear()
         return ConversationHandler.END
 
-    context.user_data['movie_data']['release_year'] = year_text
-    await update.message.reply_text("✅ Release year saved.\n\nStep 4: Enter the runtime (e.g., 2hr 14min).")
+    # Handle skip button
+    if year_text == '⏭️ Skip Release Year':
+        context.user_data['movie_data']['release_year'] = 'N/A'
+        message = "⏭️ Release year skipped (set to N/A).\n\nStep 4: Enter the runtime (e.g., 2hr 14min).\nOr press '⏭️ Skip Runtime' to use default (N/A)."
+    else:
+        context.user_data['movie_data']['release_year'] = year_text
+        message = "✅ Release year saved.\n\nStep 4: Enter the runtime (e.g., 2hr 14min).\nOr press '⏭️ Skip Runtime' to use default (N/A)."
+    
+    # Add skip button for runtime
+    skip_keyboard = [
+        [KeyboardButton("⏭️ Skip Runtime")],
+        [KeyboardButton("❌ Cancel")]
+    ]
+    keyboard = ReplyKeyboardMarkup(skip_keyboard, resize_keyboard=True)
+    
+    await update.message.reply_text(message, reply_markup=keyboard)
     return GET_RUNTIME
 
 async def get_runtime(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -152,8 +213,22 @@ async def get_runtime(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         context.user_data.clear()
         return ConversationHandler.END
 
-    context.user_data['movie_data']['runtime'] = runtime_text
-    await update.message.reply_text("✅ Runtime saved.\n\nStep 5: Enter the IMDb rating (e.g., 8.3).")
+    # Handle skip button
+    if runtime_text == '⏭️ Skip Runtime':
+        context.user_data['movie_data']['runtime'] = 'N/A'
+        message = "⏭️ Runtime skipped (set to N/A).\n\nStep 5: Enter the IMDb rating (e.g., 8.3).\nOr press '⏭️ Skip IMDb Rating' to use default (N/A)."
+    else:
+        context.user_data['movie_data']['runtime'] = runtime_text
+        message = "✅ Runtime saved.\n\nStep 5: Enter the IMDb rating (e.g., 8.3).\nOr press '⏭️ Skip IMDb Rating' to use default (N/A)."
+    
+    # Add skip button for IMDb rating
+    skip_keyboard = [
+        [KeyboardButton("⏭️ Skip IMDb Rating")],
+        [KeyboardButton("❌ Cancel")]
+    ]
+    keyboard = ReplyKeyboardMarkup(skip_keyboard, resize_keyboard=True)
+    
+    await update.message.reply_text(message, reply_markup=keyboard)
     return GET_IMDB_RATING
 
 async def get_imdb_rating(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -170,13 +245,16 @@ async def get_imdb_rating(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         context.user_data.clear()
         return ConversationHandler.END
 
-    context.user_data['movie_data']['imdb_rating'] = rating_text
+    # Handle skip button
+    if rating_text == '⏭️ Skip IMDb Rating':
+        context.user_data['movie_data']['imdb_rating'] = 'N/A'
+        message = "⏭️ IMDb rating skipped (set to N/A).\n\nStep 6: Please select the movie categories (you can select multiple).\nOr press '⏭️ Skip Categories' to use default (General)."
+    else:
+        context.user_data['movie_data']['imdb_rating'] = rating_text
+        message = "✅ IMDb rating saved.\n\nStep 6: Please select the movie categories (you can select multiple).\nOr press '⏭️ Skip Categories' to use default (General)."
 
-    keyboard = build_selection_keyboard(CATEGORIES, set())
-    await update.message.reply_text(
-        "✅ IMDb rating saved.\n\nStep 6: Please select the movie categories (you can select multiple).",
-        reply_markup=keyboard
-    )
+    keyboard = build_selection_keyboard_with_skip(CATEGORIES, set())
+    await update.message.reply_text(message, reply_markup=keyboard)
     return CHOOSE_CATEGORIES
 
 async def choose_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -191,9 +269,19 @@ async def choose_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             await query.message.reply_text("⚠️ Please select at least one category before continuing.")
             return CHOOSE_CATEGORIES
 
-        keyboard = build_selection_keyboard(LANGUAGES, set())
+        keyboard = build_selection_keyboard_with_skip(LANGUAGES, set())
         await query.edit_message_text(
-            "✅ Categories saved.\n\nStep 7: Now select the languages.",
+            "✅ Categories saved.\n\nStep 7: Now select the languages.\nOr press '⏭️ Skip' to use default (English).",
+            reply_markup=keyboard
+        )
+        return CHOOSE_LANGUAGES
+    
+    elif selected_option == 'skip':
+        # Skip categories - use default "General"
+        context.user_data['movie_data']['categories'] = {'General'}
+        keyboard = build_selection_keyboard_with_skip(LANGUAGES, set())
+        await query.edit_message_text(
+            "⏭️ Categories skipped (set to General).\n\nStep 7: Now select the languages.\nOr press '⏭️ Skip' to use default (English).",
             reply_markup=keyboard
         )
         return CHOOSE_LANGUAGES
@@ -205,7 +293,7 @@ async def choose_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         context.user_data['movie_data']['categories'].add(selected_option)
 
     # Update the keyboard with the new selection
-    keyboard = build_selection_keyboard(CATEGORIES, context.user_data['movie_data']['categories'])
+    keyboard = build_selection_keyboard_with_skip(CATEGORIES, context.user_data['movie_data']['categories'])
     await query.edit_message_reply_markup(reply_markup=keyboard)
     return CHOOSE_CATEGORIES
 
@@ -224,7 +312,18 @@ async def choose_languages(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         keyboard = [[InlineKeyboardButton("Single Movie File", callback_data="filetype_single")],
                     [InlineKeyboardButton("Multiple Series Files", callback_data="filetype_series")]]
         await query.edit_message_text(
-            "✅ Languages saved.\n\nStep 9: Is this a single movie or a web series?",
+            "✅ Languages saved.\n\nStep 8: Is this a single movie or a web series?",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+        return CHOOSE_FILE_TYPE
+    
+    elif selected_option == 'skip':
+        # Skip languages - use default "English"
+        context.user_data['movie_data']['languages'] = {'English'}
+        keyboard = [[InlineKeyboardButton("Single Movie File", callback_data="filetype_single")],
+                    [InlineKeyboardButton("Multiple Series Files", callback_data="filetype_series")]]
+        await query.edit_message_text(
+            "⏭️ Languages skipped (set to English).\n\nStep 8: Is this a single movie or a web series?",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
         return CHOOSE_FILE_TYPE
@@ -234,7 +333,7 @@ async def choose_languages(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     else:
         context.user_data['movie_data']['languages'].add(selected_option)
 
-    keyboard = build_selection_keyboard(LANGUAGES, context.user_data['movie_data']['languages'])
+    keyboard = build_selection_keyboard_with_skip(LANGUAGES, context.user_data['movie_data']['languages'])
     await query.edit_message_reply_markup(reply_markup=keyboard)
     return CHOOSE_LANGUAGES
 
@@ -479,8 +578,8 @@ add_movie_conv_handler = ConversationHandler(
         GET_RELEASE_YEAR: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_release_year)],
         GET_RUNTIME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_runtime)],
         GET_IMDB_RATING: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_imdb_rating)],
-        CHOOSE_CATEGORIES: [CallbackQueryHandler(choose_categories, pattern="^select_")],
-        CHOOSE_LANGUAGES: [CallbackQueryHandler(choose_languages, pattern="^select_")],
+        CHOOSE_CATEGORIES: [CallbackQueryHandler(choose_categories, pattern="^select_(done|skip|.*)")],
+        CHOOSE_LANGUAGES: [CallbackQueryHandler(choose_languages, pattern="^select_(done|skip|.*)")],
         CHOOSE_FILE_TYPE: [CallbackQueryHandler(choose_file_type, pattern="^filetype_")],
         UPLOAD_SINGLE_FILES: [MessageHandler(filters.TEXT | filters.ATTACHMENT, upload_single_files)],
         UPLOAD_SERIES_FILES: [MessageHandler(filters.TEXT | filters.ATTACHMENT, upload_series_files)],
