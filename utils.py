@@ -141,7 +141,7 @@ def generate_ad_link_button(user_id: int, movie_id: int, quality: str) -> Inline
 def format_movie_post(movie_details: dict, channel_username: str) -> str:
     """
     ডেটাবেস থেকে প্রাপ্ত মুভির তথ্য দিয়ে একটি সুন্দর পোস্ট ফরম্যাট করে।
-    আপনার দেওয়া ছবির ফরম্যাট অনুযায়ী এটি তৈরি করা হয়েছে।
+    স্কিপ করা ফিল্ডগুলো (N/A) প্রিভিউতে দেখানো হয় না।
     """
     files = movie_details.get('files', {})
     is_series = any('E' in quality for quality in files.keys())
@@ -161,22 +161,43 @@ def format_movie_post(movie_details: dict, channel_username: str) -> str:
             deep_link = f"https://t.me/{BOT_USERNAME}?start=file_{movie_details['movie_id']}_{quality}"
             download_links += f"{quality} || 👉 <a href='{deep_link}'>Click To Download</a> 📥\n"
 
-    # ডেটা পূরণ করা
-    template_data = {
-        'title': movie_details.get('title', 'N/A'),
-        'languages': " | ".join(movie_details.get('languages', [])),
-        'categories': " | ".join(movie_details.get('categories', [])),
-        'release_year': movie_details.get('release_year', 'N/A'),
-        'runtime': movie_details.get('runtime', 'N/A'),
-        'imdb_rating': movie_details.get('imdb_rating', 'N/A'),
-        'download_links': download_links.strip(),
-        'channel_username': channel_username
-    }
-
+    # Build dynamic template - only include non-N/A fields
+    title = movie_details.get('title', 'Unknown')
+    languages = " | ".join(movie_details.get('languages', []))
+    categories = " | ".join(movie_details.get('categories', []))
+    
+    # Start building the post
+    post_text = f"🍿 {title}\n\n"
+    
+    # Only add fields that are not N/A or empty
+    if languages:
+        post_text += f"📌 Language: {languages}\n"
+    if categories:
+        post_text += f"☘️ Genre: {categories}\n"
+    
+    release_year = movie_details.get('release_year', 'N/A')
+    if release_year != 'N/A':
+        post_text += f"🗓️ Release Year: {release_year}\n"
+    
+    runtime = movie_details.get('runtime', 'N/A')
+    if runtime != 'N/A':
+        post_text += f"⏰ Runtime: {runtime}\n"
+    
+    imdb_rating = movie_details.get('imdb_rating', 'N/A')
+    if imdb_rating != 'N/A':
+        post_text += f"⭐️ IMDb Rating: {imdb_rating}/10\n"
+    
+    # Add series-specific content for web series
     if is_series:
-        return SERIES_POST_TEMPLATE.format(**template_data)
-    else:
-        return SINGLE_MOVIE_POST_TEMPLATE.format(**template_data)
+        post_text += "\nAvailable Episode - (Total ep)\n"
+    
+    # Add download links and footer
+    post_text += f"\n🔗 Download Link Below\n{download_links.strip()}\n\n"
+    post_text += "🔥 Ultra Fast • Direct Access\n"
+    post_text += f"🛰️ Join Now: @{channel_username}\n"
+    post_text += "🔔 New Movies Uploaded Daily!"
+    
+    return post_text
 
 def get_movie_search_results_markup(movies: List[dict]) -> InlineKeyboardMarkup:
     """Create inline keyboard for movie search results."""
