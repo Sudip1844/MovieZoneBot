@@ -530,5 +530,6 @@ movie_handlers = [
     MessageHandler(filters.Regex("^📂 Browse Categories$"), browse_categories),
     MessageHandler(filters.Regex("^📊 Show Requests$"), show_requests),
     # Text search handler (should be last to catch search queries)
-    MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.REPLY, handle_search_query)
+    # Exclude help button and other main menu buttons
+    MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.REPLY & ~filters.Regex("^❓ Help$") & ~filters.Regex("^❌ Cancel$"), handle_search_query)
 ]
