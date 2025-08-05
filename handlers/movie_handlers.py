@@ -462,8 +462,6 @@ async def show_movie_stats(update: Update, context: ContextTypes.DEFAULT_TYPE, m
     
     stats_text += f"📥 Total Downloads: {total_downloads}\n"
     stats_text += f"🗂️ Available Qualities: {', '.join(movie.get('files', {}).keys())}\n"
-    stats_text += f"🌐 Languages: {', '.join(movie.get('languages', []))}\n"
-    stats_text += f"📂 Categories: {', '.join(movie.get('categories', []))}\n"
     
     await update.message.reply_html(stats_text)
 
