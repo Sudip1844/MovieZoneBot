@@ -36,13 +36,16 @@ async def delete_message_job(context):
 
 def schedule_message_deletion(context, chat_id: int, message_id: int, delay_seconds: int = 86400): # 24 hours
     """Schedules a message to be deleted after a delay."""
-    context.job_queue.run_once(
-        delete_message_job,
-        when=delay_seconds,
-        data={'message_id': message_id},
-        chat_id=chat_id,
-        name=f"delete_{chat_id}_{message_id}"
-    )
+    if context.job_queue:
+        context.job_queue.run_once(
+            delete_message_job,
+            when=delay_seconds,
+            data={'message_id': message_id},
+            chat_id=chat_id,
+            name=f"delete_{chat_id}_{message_id}"
+        )
+    else:
+        logger.warning(f"JobQueue not available - message {message_id} will not be auto-deleted")
 
 async def delete_conversation_messages(context, chat_id: int, message_ids: list):
     """Delete multiple conversation messages immediately."""
