@@ -86,15 +86,13 @@ def build_selection_keyboard_with_skip(options: list, selected_options: set) -> 
     if row:
         buttons.append(row)
 
-    # Hentai, Skip, এবং Done বাটন একসাথে
+    # Hentai, Skip, এবং Done বাটন একসাথে পাশাপাশি
     last_row = []
     if hentai_button:
         last_row.append(hentai_button)
     last_row.append(InlineKeyboardButton("⏭️ Skip", callback_data="select_skip"))
+    last_row.append(InlineKeyboardButton("➡️ Done", callback_data="select_done"))
     buttons.append(last_row)
-    
-    # Done button in a separate row
-    buttons.append([InlineKeyboardButton("➡️ Done", callback_data="select_done")])
 
     return InlineKeyboardMarkup(buttons)
 
