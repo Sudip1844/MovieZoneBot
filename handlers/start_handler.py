@@ -129,7 +129,15 @@ Download Process:
 Join our channel: @moviezone969"""
 
     keyboard = get_main_keyboard(user_role)
-    await update.message.reply_html(welcome_message, reply_markup=keyboard)
+    sent_message = await update.message.reply_html(welcome_message, reply_markup=keyboard)
+    
+    # Schedule cleanup for welcome message (preserve for users if it's first time)
+    from main import schedule_user_message_cleanup
+    if is_new_user and user_role == 'user':
+        # Don't auto-delete welcome message for new users
+        pass
+    else:
+        schedule_user_message_cleanup(context, update.effective_chat.id, sent_message.message_id, user_role)
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

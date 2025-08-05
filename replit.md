@@ -49,7 +49,7 @@ The application adopts a modular architecture, promoting separation of concerns 
 - **Skip Functionality**: Added skip buttons to movie addition process for release year, runtime, IMDb rating, categories, and languages to save time for admins/owners. Skip options use sensible defaults (N/A for metadata, General for category, English for language). Skipped fields (N/A values) are automatically hidden from preview and final posts to keep them clean.
 - **Dynamic Command Menu**: Contextual command menu adjustments based on conversation state.
 - **Automated Posting**: After preview, movies can be posted to multiple selected channels with validation checks.
-- **Message Cleanup**: Scheduled auto-deletion of messages and token expiration for a clean system.
+- **Message Cleanup**: Comprehensive automatic chat cleanup system with two-tier approach: (1) Step-by-step conversation cleanup during workflows to minimize chat length, (2) 24-hour scheduled deletion for user/admin/owner messages. Movie posts are preserved for regular users while all messages are cleaned for admins/owners.
 
 ## External Dependencies
 

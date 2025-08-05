@@ -25,7 +25,7 @@ logging.basicConfig(
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
-# --- Auto-Delete Job Function ---
+# --- Auto-Delete Job Functions ---
 async def delete_message_job(context):
     """Deletes a message after a specified time."""
     try:
@@ -34,7 +34,7 @@ async def delete_message_job(context):
     except Exception as e:
         logger.warning(f"Could not delete message {context.job.data['message_id']}: {e}")
 
-def schedule_message_deletion(context, chat_id: int, message_id: int, delay_seconds: int = 172800): # 48 hours
+def schedule_message_deletion(context, chat_id: int, message_id: int, delay_seconds: int = 86400): # 24 hours
     """Schedules a message to be deleted after a delay."""
     context.job_queue.run_once(
         delete_message_job,
@@ -43,6 +43,30 @@ def schedule_message_deletion(context, chat_id: int, message_id: int, delay_seco
         chat_id=chat_id,
         name=f"delete_{chat_id}_{message_id}"
     )
+
+async def delete_conversation_messages(context, chat_id: int, message_ids: list):
+    """Delete multiple conversation messages immediately."""
+    deleted_count = 0
+    for message_id in message_ids:
+        try:
+            await context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+            deleted_count += 1
+        except Exception as e:
+            logger.warning(f"Could not delete conversation message {message_id}: {e}")
+    logger.info(f"Deleted {deleted_count}/{len(message_ids)} conversation messages from chat {chat_id}")
+
+def schedule_user_message_cleanup(context, chat_id: int, message_id: int, user_role: str):
+    """Schedule user message cleanup based on role."""
+    import database as db
+    
+    # For owners and admins: delete everything after 24 hours
+    # For users: delete everything except movie posts after 24 hours
+    if user_role in ['owner', 'admin']:
+        schedule_message_deletion(context, chat_id, message_id, 86400)  # 24 hours
+    else:
+        # For users, we need to check if it's a movie post or not
+        # Movie posts are preserved, other messages deleted after 24 hours
+        schedule_message_deletion(context, chat_id, message_id, 86400)
 
 # --- New Channel Member Handler ---
 def extract_status_change(chat_member_update: ChatMemberUpdated) -> Optional[Tuple[bool, bool]]:
