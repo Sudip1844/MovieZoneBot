@@ -31,12 +31,65 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     db.add_user_if_not_exists(user.id, user.first_name, user.username)
     
     # context.args contains the part after the /start command (for deep linking)
-    # Example: /start <secureToken>
+    # Example: /start file_5_720p or /start <secureToken>
     if context.args:
         payload = context.args[0]
         logger.info(f"User {user.id} started with payload: {payload}")
         
-        # Validate the ad token from the ad page
+        # Check if it's a file download link (format: file_<movie_id>_<quality>)
+        if payload.startswith('file_'):
+            try:
+                # Parse the file identifier: file_5_720p or file_5_E01
+                parts = payload.split('_')
+                if len(parts) >= 3:
+                    movie_id = int(parts[1])
+                    quality = '_'.join(parts[2:])  # Handle qualities like '720p_HEVC'
+                    
+                    # Get movie details
+                    movie_details = db.get_movie_details(movie_id)
+                    if not movie_details:
+                        await context.bot.send_message(
+                            chat_id=user.id,
+                            text="❌ Movie not found. It might have been deleted."
+                        )
+                        return
+                    
+                    # Check if the quality exists
+                    files = movie_details.get("files", {})
+                    if quality not in files:
+                        await context.bot.send_message(
+                            chat_id=user.id,
+                            text="❌ This quality is no longer available."
+                        )
+                        return
+                    
+                    # Show the movie with download option
+                    from utils import generate_ad_link_button
+                    movie_title = movie_details.get('title', 'this movie')
+                    
+                    await context.bot.send_message(
+                        chat_id=user.id,
+                        text=f"🍿 {movie_title}\n\nTo download in {quality}, you need to watch a short ad to support us."
+                    )
+                    
+                    ad_link_markup = generate_ad_link_button(user_id=user.id, movie_id=movie_id, quality=quality)
+                    if ad_link_markup:
+                        await context.bot.send_message(
+                            chat_id=user.id,
+                            text="👇 Click the button below to proceed.",
+                            reply_markup=ad_link_markup
+                        )
+                    else:
+                        await context.bot.send_message(
+                            chat_id=user.id,
+                            text="❌ Sorry, something went wrong while generating the download link. Please try again."
+                        )
+                    return
+                    
+            except (ValueError, IndexError) as e:
+                logger.warning(f"Invalid file payload format: {payload}")
+        
+        # If not a file link, try to validate as ad token from the ad page
         file_id_to_send = db.validate_ad_token(token=payload, user_id=user.id)
         
         if file_id_to_send:
@@ -63,7 +116,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 )
             return  # Stop further execution after sending the file
         else:
-            # If the token is invalid or expired - don't show welcome message for existing users
+            # If neither file link nor valid token
+            logger.warning(f"Token not found: {payload}")
             await context.bot.send_message(
                 chat_id=user.id,
                 text="⚠️ Sorry, this download link is invalid or has expired. Please generate a new one from the bot."

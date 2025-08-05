@@ -1,4 +1,41 @@
 {
-  "next_id": 5,
-  "movies": {}
+  "next_id": 6,
+  "movies": {
+    "5": {
+      "added_by": 5379553841,
+      "categories": [
+        "South Indian 🎬",
+        "Anime & cartoon 🌀",
+        "Sci-Fi 🛸",
+        "Action 💥",
+        "Web Series 🎥",
+        "Bollywood 🇮🇳",
+        "Comedy 🤣",
+        "Bengali ✨",
+        "Horror 😱",
+        "Hollywood 🇺🇸"
+      ],
+      "languages": [
+        "18+ 🔞",
+        "Tamil",
+        "English"
+      ],
+      "files": {
+        "E01": [
+          "BAACAgUAAxkBAAIHJmiSH8IOLqKuRDUtQHqP3GGj1XhKAAJ-GgACCgeQVAABel1rZeZsGDYE",
+          "AgADfhoAAgoHkFQ"
+        ]
+      },
+      "thumbnail_file_id": "AgACAgUAAxkBAAIG92iSG0FYvcxMfeo1DeuJHQAB6spLuwAC0sUxGwoHkFTiNTCI18CylQEAAwIAA3kAAzYE",
+      "title": "Title",
+      "release_year": "N/A",
+      "runtime": "N/A",
+      "imdb_rating": "N/A",
+      "is_series": true,
+      "next_episode": 2,
+      "movie_id": 5,
+      "added_at": "2025-08-05T15:14:35.362684",
+      "download_count": 0
+    }
+  }
 }
