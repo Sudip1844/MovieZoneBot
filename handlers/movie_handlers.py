@@ -461,7 +461,19 @@ async def show_movie_stats(update: Update, context: ContextTypes.DEFAULT_TYPE, m
         total_downloads = download_count or 0
     
     stats_text += f"📥 Total Downloads: {total_downloads}\n"
-    stats_text += f"🗂️ Available Qualities: {', '.join(movie.get('files', {}).keys())}\n"
+    
+    # Show available qualities and episodes
+    files = movie.get('files', {})
+    qualities = [q for q in files.keys() if not q.startswith('E')]
+    episodes = [q for q in files.keys() if q.startswith('E')]
+    
+    if qualities:
+        stats_text += f"🗂️ Available Qualities: {', '.join(qualities)}\n"
+    
+    if episodes:
+        # Count total episodes
+        episode_count = len(episodes)
+        stats_text += f"📺 Available Episodes: {episode_count} episodes\n"
     
     await update.message.reply_html(stats_text)
 

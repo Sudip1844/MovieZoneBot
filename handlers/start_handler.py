@@ -46,8 +46,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 text="✅ Your download is ready! Sending the file now..."
             )
             try:
-                # We use the direct file_id to send the file
-                await context.bot.send_document(chat_id=user.id, document=file_id_to_send)
+                # Try sending as video first (most movie files are videos)
+                try:
+                    await context.bot.send_video(chat_id=user.id, video=file_id_to_send)
+                    logger.info(f"Successfully sent video {file_id_to_send} to user {user.id}")
+                except Exception as video_error:
+                    logger.info(f"Failed to send as video, trying as document: {video_error}")
+                    # If video fails, try as document
+                    await context.bot.send_document(chat_id=user.id, document=file_id_to_send)
+                    logger.info(f"Successfully sent document {file_id_to_send} to user {user.id}")
             except Exception as e:
                 logger.error(f"Failed to send file with ID {file_id_to_send} to user {user.id}. Error: {e}")
                 await context.bot.send_message(
