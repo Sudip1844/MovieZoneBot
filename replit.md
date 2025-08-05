@@ -26,6 +26,7 @@ The application adopts a modular architecture, promoting separation of concerns 
 - **Dynamic Command Menu**: The command menu (`/start`, `/help`) dynamically hides during ongoing conversations, showing only `/cancel`, and restores upon conversation completion.
 - **Category Browsing**: Movies within categories are displayed in a 3x10 grid format with pagination and easy navigation back to main categories. Grid layout ensures optimal viewing with up to 30 movies per page.
 - **Message Formatting**: Professional, structured layouts with emojis and clear information hierarchy are used consistently across all movie displays, search results, and welcome messages. All bold formatting is removed.
+- **Channel Message Filtering**: Bot only responds to search queries in private chats, preventing interference with channel posts made by admins/owners. Channel posts are ignored unless specifically posted through the bot's movie addition workflow.
 - **Admin/Channel Management**: Features like managing admins and channels are integrated into existing commands and accessed via dedicated buttons (e.g., "Manage Admins" includes "Add New Admin", "Remove an Admin"). Short names are used for easy identification in removal lists.
 
 ### Technical Implementations
