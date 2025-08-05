@@ -135,6 +135,11 @@ def add_admin(admin_id: int, short_name: str, first_name: str, username: Optiona
     logger.info(f"Added new admin: {admin_id} ({short_name})")
     return True
 
+def get_admin_info(admin_id: int) -> Optional[Dict]:
+    """Get admin information by user ID."""
+    admins = load_json(ADMINS_FILE)
+    return admins.get(str(admin_id))
+
 def remove_admin(identifier: str) -> bool:
     """Remove an admin by user ID or short name."""
     admins = load_json(ADMINS_FILE)

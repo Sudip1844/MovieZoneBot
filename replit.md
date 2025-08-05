@@ -45,7 +45,7 @@ The application adopts a modular architecture, promoting separation of concerns 
 - **Movie Search & Browse**: Users can search by query or browse categories with detailed movie information and download options.
 - **Movie Request System**: Users can submit movie requests, which admins can manage. Users are notified upon fulfillment.
 - **Admin & Owner Features**: Comprehensive management of users, movies, channels, and requests.
-- **Movie Management**: Owner role includes full movie lifecycle management with "➕ Add Movie", "🗑️ Remove Movie", and "📊 Show Stats" functionality accessible via reply keyboard buttons.
+- **Movie Management**: Owner role includes full movie lifecycle management with "➕ Add Movie", "🗑️ Remove Movie", and "📊 Show Stats" functionality accessible via reply keyboard buttons. Stats display shows uploader information (Owner/Admin short name) and accurate download counts.
 - **Skip Functionality**: Added skip buttons to movie addition process for release year, runtime, IMDb rating, categories, and languages to save time for admins/owners. Skip options use sensible defaults (N/A for metadata, General for category, English for language). Skipped fields (N/A values) are automatically hidden from preview and final posts to keep them clean.
 - **Dynamic Command Menu**: Contextual command menu adjustments based on conversation state.
 - **Automated Posting**: After preview, movies can be posted to multiple selected channels with validation checks.

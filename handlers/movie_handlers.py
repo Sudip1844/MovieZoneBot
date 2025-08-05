@@ -428,11 +428,39 @@ async def get_movie_for_stats(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def show_movie_stats(update: Update, context: ContextTypes.DEFAULT_TYPE, movie: dict):
     """Show statistics for a specific movie."""
+    from config import OWNER_ID
+    
     stats_text = f"📊 Statistics for {movie.get('title', 'Unknown')}\n\n"
     stats_text += f"🎬 Movie ID: {movie['movie_id']}\n"
     stats_text += f"📅 Added on: {movie.get('added_at', 'Unknown')[:10]}\n"
-    stats_text += f"👤 Added by: {movie.get('added_by', 'Unknown')}\n"
-    stats_text += f"📥 Total Downloads: {movie.get('download_count', 0)}\n"
+    
+    # Get uploader information
+    added_by_id = movie.get('added_by')
+    if added_by_id:
+        if str(added_by_id) == str(OWNER_ID):
+            uploader_name = "Owner"
+        else:
+            # Check if it's an admin and get their short name
+            admin_info = db.get_admin_info(added_by_id)
+            if admin_info:
+                uploader_name = admin_info.get('short_name', f"Admin-{added_by_id}")
+            else:
+                uploader_name = f"User-{added_by_id}"
+    else:
+        uploader_name = "Unknown"
+    
+    stats_text += f"👤 Uploaded by: {uploader_name}\n"
+    
+    # Get accurate download count
+    download_count = movie.get('download_count', 0)
+    # Ensure download count is properly calculated
+    if isinstance(download_count, dict):
+        # If download_count is stored as dict per quality, sum them up
+        total_downloads = sum(download_count.values()) if download_count else 0
+    else:
+        total_downloads = download_count or 0
+    
+    stats_text += f"📥 Total Downloads: {total_downloads}\n"
     stats_text += f"🗂️ Available Qualities: {', '.join(movie.get('files', {}).keys())}\n"
     stats_text += f"🌐 Languages: {', '.join(movie.get('languages', []))}\n"
     stats_text += f"📂 Categories: {', '.join(movie.get('categories', []))}\n"
