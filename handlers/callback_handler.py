@@ -90,14 +90,29 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
                 await query.edit_message_text("❌ Error: Movie not found.")
                 return
 
-            # Keep original format but with new emoji icons
-            response_text = f"🎬 {movie_details.get('title', 'N/A')}\n\n" \
-                            f"Description: {movie_details.get('description', 'N/A')}\n" \
-                            f"📅 Release Year: {movie_details.get('release_year', 'N/A')}\n" \
-                            f"⏰ Runtime: {movie_details.get('runtime', 'N/A')}\n" \
-                            f"⭐ IMDb: {movie_details.get('imdb_rating', 'N/A')}/10\n" \
-                            f"🎭 Languages: {', '.join(movie_details.get('languages', []))}\n" \
-                            f"🎪 Categories: {', '.join(movie_details.get('categories', []))}"
+            # Build response with Title: prefix and no Description field
+            response_text = f"🎬 Title: {movie_details.get('title', 'N/A')}\n\n"
+            
+            # Only include non-N/A fields
+            release_year = movie_details.get('release_year', 'N/A')
+            if release_year != 'N/A':
+                response_text += f"📅 Release Year: {release_year}\n"
+            
+            runtime = movie_details.get('runtime', 'N/A')
+            if runtime != 'N/A':
+                response_text += f"⏰ Runtime: {runtime}\n"
+            
+            imdb_rating = movie_details.get('imdb_rating', 'N/A')
+            if imdb_rating != 'N/A':
+                response_text += f"⭐ IMDb: {imdb_rating}/10\n"
+            
+            languages = movie_details.get('languages', [])
+            if languages:
+                response_text += f"🎭 Languages: {', '.join(languages)}\n"
+            
+            categories = movie_details.get('categories', [])
+            if categories:
+                response_text += f"🎪 Categories: {', '.join(categories)}"
             
             # Create quality buttons
             files = movie_details.get('files', {})
@@ -148,24 +163,49 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
 
         elif prefix == 'cat':
             # Handle category selection - Show movies in 3x10 grid format
-            category = '_'.join(parts[1:]).replace('_', ' ')
-            page = int(parts[-1]) if parts[-1].isdigit() and len(parts) > 2 else 1
-            
-            # Special handling for "All" category - alphabet filtering
-            if category == "All 🌐":
-                await query.edit_message_text(
-                    "🌐 All Movies - Alphabet Filter\n\n"
-                    "Please send any letter (A-Z) to see movies starting with that letter.\n\n"
-                    "For example, send 'A' to see all movies starting with A."
-                )
-                return
-            
-            # Get movies with pagination (30 per page)
-            offset = (page - 1) * 30
-            movies = db.get_movies_by_category(category, limit=31, offset=offset)  # Get 31 to check if there's a next page
-            
-            if not movies:
-                await query.edit_message_text(f"❌ No movies found in category: {category}")
+            try:
+                # Parse category and page from callback data
+                callback_parts = callback_data.split('_')
+                if callback_parts[-1].isdigit():
+                    # Has page number: cat_Hollywood_🇺🇸_2
+                    page = int(callback_parts[-1])
+                    category_parts = callback_parts[1:-1]
+                else:
+                    # No page number: cat_Hollywood_🇺🇸
+                    page = 1
+                    category_parts = callback_parts[1:]
+                
+                # Reconstruct category name properly
+                category = '_'.join(category_parts).replace('_', ' ')
+                
+                logger.info(f"Category browsing - Original callback: {callback_data}, Parsed category: '{category}', Page: {page}")
+                
+                # Special handling for "All" category - alphabet filtering
+                if category == "All 🌐":
+                    await query.edit_message_text(
+                        "🌐 All Movies - Alphabet Filter\n\n"
+                        "Please send any letter (A-Z) to see movies starting with that letter.\n\n"
+                        "For example, send 'A' to see all movies starting with A."
+                    )
+                    return
+                
+                # Get movies with pagination (30 per page)
+                offset = (page - 1) * 30
+                movies = db.get_movies_by_category(category, limit=31, offset=offset)  # Get 31 to check if there's a next page
+                
+                if not movies:
+                    # Debug: Show what categories are available
+                    all_movies = db.load_json(db.MOVIES_FILE)
+                    available_categories = set()
+                    for movie_data in all_movies.get("movies", {}).values():
+                        available_categories.update(movie_data.get("categories", []))
+                    
+                    logger.error(f"No movies found for category: '{category}'. Available categories: {list(available_categories)}")
+                    await query.edit_message_text(f"❌ No movies found in category: {category}\n\nAvailable categories: {', '.join(list(available_categories))}")
+                    return
+            except Exception as e:
+                logger.error(f"Error parsing category callback data '{callback_data}': {e}")
+                await query.edit_message_text("❌ Error processing category request. Please try again.")
                 return
             
             # Create 3-column grid layout

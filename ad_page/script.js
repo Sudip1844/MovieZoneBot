@@ -1,7 +1,7 @@
 // MovieZone Redirect Page JavaScript - Updated & Final Version
 
 // --- Configuration ---
-const COUNTDOWN_SECONDS = 15; // Timer duration in seconds
+const COUNTDOWN_SECONDS = 10; // Timer duration in seconds (changed from 15 to 10)
 const BOT_USERNAME = "MoviezoneDownloadbot"; // Your actual bot username
 
 // --- Global Variables ---
@@ -98,6 +98,7 @@ function startTimer() {
 /**
  * Executes when the timer finishes.
  * Hides the timer and shows the scroll/continue buttons.
+ * Auto-scrolls to bottom after 3 seconds if user doesn't interact.
  */
 function onTimerComplete() {
     // Hide timer section
@@ -117,6 +118,21 @@ function onTimerComplete() {
     if (downloadSection) {
         downloadSection.style.display = 'block';
     }
+    
+    // Auto-scroll after 3 seconds if user doesn't manually scroll
+    setTimeout(() => {
+        const continueBtn = document.getElementById('continueBtn');
+        if (continueBtn && !continueBtn.hasAttribute('data-user-scrolled')) {
+            smoothScrollToBottom();
+            
+            // Auto-click continue button after another 3 seconds if user doesn't click
+            setTimeout(() => {
+                if (continueBtn && !continueBtn.hasAttribute('data-clicked')) {
+                    handleContinueToBot();
+                }
+            }, 3000);
+        }
+    }, 3000);
 }
 
 /**
@@ -124,6 +140,13 @@ function onTimerComplete() {
  */
 function smoothScrollToBottom() {
     const downloadSection = document.getElementById('downloadSection');
+    const continueBtn = document.getElementById('continueBtn');
+    
+    // Mark that user has scrolled (or auto-scroll occurred)
+    if (continueBtn) {
+        continueBtn.setAttribute('data-user-scrolled', 'true');
+    }
+    
     if (downloadSection) {
         downloadSection.scrollIntoView({
             behavior: 'smooth',
@@ -148,15 +171,18 @@ function handleContinueToBot() {
         return;
     }
 
-    // This is the updated, secure return URL.
-    // It sends only the token back to the bot.
-    const returnUrl = `https://t.me/${BOT_USERNAME}?start=${secureToken}`;
-
     const continueBtn = document.getElementById('continueBtn');
+    
+    // Mark button as clicked to prevent auto-click
     if (continueBtn) {
+        continueBtn.setAttribute('data-clicked', 'true');
         continueBtn.textContent = 'Returning to bot...';
         continueBtn.disabled = true;
     }
+
+    // This is the updated, secure return URL.
+    // It sends only the token back to the bot.
+    const returnUrl = `https://t.me/${BOT_USERNAME}?start=${secureToken}`;
 
     // Redirect the user
     window.location.href = returnUrl;

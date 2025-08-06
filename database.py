@@ -223,20 +223,30 @@ def get_movies_by_first_letter(letter: str, limit: int = 30) -> List[Dict]:
 def get_movies_by_category(category: str, limit: int = 10, offset: int = 0) -> List[Dict]:
     """Get movies by category with pagination support."""
     movies = load_json(MOVIES_FILE)
-    results = []
     
-    # First collect all matching movies
-    all_matching = []
-    for movie_data in movies["movies"].values():
-        categories = movie_data.get("categories", [])
-        if category in categories:
-            all_matching.append(movie_data)
+    if category == "All 🌐":
+        # Return all movies for alphabet filtering
+        all_matching = list(movies["movies"].values())
+    else:
+        # First collect all matching movies - handle exact category match
+        all_matching = []
+        for movie_data in movies["movies"].values():
+            categories = movie_data.get("categories", [])
+            # Check for exact category match
+            for movie_category in categories:
+                if category == movie_category:
+                    all_matching.append(movie_data)
+                    break
+    
+    # Sort by title for consistent ordering
+    all_matching.sort(key=lambda x: x.get('title', '').lower())
     
     # Apply offset and limit
     start_index = offset
     end_index = offset + limit
     results = all_matching[start_index:end_index]
     
+    logger.info(f"Category search for '{category}': found {len(all_matching)} movies, returning {len(results)}")
     return results
 
 def delete_movie(movie_id: int) -> bool:
@@ -388,7 +398,13 @@ def create_ad_token(user_id: int, movie_id: int, quality: str) -> Optional[str]:
         return None
     
     file_info = files[quality]
-    file_id = file_info[0] if isinstance(file_info, tuple) else file_info
+    # Handle different file storage formats
+    if isinstance(file_info, list) and len(file_info) > 0:
+        file_id = file_info[0]  # Take first file ID from list
+    elif isinstance(file_info, tuple):
+        file_id = file_info[0]  # Take first from tuple
+    else:
+        file_id = file_info  # Direct file ID
     
     # Store token with expiry (24 hours)
     expiry_time = datetime.now() + timedelta(hours=24)
@@ -465,23 +481,7 @@ def cleanup_expired_tokens():
 
 # --- Stats Functions ---
 
-def get_movies_by_category(category: str, limit: int = 30) -> List[dict]:
-    """Get movies by category for stats."""
-    movies = load_json(MOVIES_FILE)
-    
-    if category == "All 🌐":
-        # Return all movies for alphabet filtering
-        all_movies = list(movies.values())
-    else:
-        # Filter by specific category
-        all_movies = [
-            movie for movie in movies.values() 
-            if category in movie.get('categories', [])
-        ]
-    
-    # Sort by title and limit
-    all_movies.sort(key=lambda x: x.get('title', '').lower())
-    return all_movies[:limit]
+# Removed duplicate function - using the correct one above
 
 def get_movies_by_uploader(admin_id: int, limit: int = 30) -> List[dict]:
     """Get movies uploaded by specific admin/owner."""

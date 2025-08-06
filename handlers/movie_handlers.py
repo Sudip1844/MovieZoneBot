@@ -80,14 +80,29 @@ async def handle_search_query(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def show_movie_details(update: Update, context: ContextTypes.DEFAULT_TYPE, movie: dict):
     """Show detailed information about a movie with consistent formatting."""
-    # Keep the original format but with new emoji icons
-    response_text = f"🎬 {movie.get('title', 'N/A')}\n\n" \
-                    f"Description: {movie.get('description', 'N/A')}\n" \
-                    f"📅 Release Year: {movie.get('release_year', 'N/A')}\n" \
-                    f"⏰ Runtime: {movie.get('runtime', 'N/A')}\n" \
-                    f"⭐ IMDb: {movie.get('imdb_rating', 'N/A')}/10\n" \
-                    f"🎭 Languages: {', '.join(movie.get('languages', []))}\n" \
-                    f"🎪 Categories: {', '.join(movie.get('categories', []))}"
+    # Build response with Title: prefix and no Description field
+    response_text = f"🎬 Title: {movie.get('title', 'N/A')}\n\n"
+    
+    # Only include non-N/A fields
+    release_year = movie.get('release_year', 'N/A')
+    if release_year != 'N/A':
+        response_text += f"📅 Release Year: {release_year}\n"
+    
+    runtime = movie.get('runtime', 'N/A')
+    if runtime != 'N/A':
+        response_text += f"⏰ Runtime: {runtime}\n"
+    
+    imdb_rating = movie.get('imdb_rating', 'N/A')
+    if imdb_rating != 'N/A':
+        response_text += f"⭐ IMDb: {imdb_rating}/10\n"
+    
+    languages = movie.get('languages', [])
+    if languages:
+        response_text += f"🎭 Languages: {', '.join(languages)}\n"
+    
+    categories = movie.get('categories', [])
+    if categories:
+        response_text += f"🎪 Categories: {', '.join(categories)}"
     
     # Create quality buttons
     files = movie.get('files', {})

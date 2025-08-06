@@ -301,7 +301,7 @@ body {
     margin-top: 50px;
 }
 
-/* Mobile Responsive */
+/* Mobile Responsive & Movie Photo Aspect Ratio Fix */
 @media (max-width: 768px) {
     .header h1 {
         font-size: 1.8em;
@@ -333,6 +333,29 @@ body {
     .timer-message {
         font-size: 1em;
         padding: 0 20px;
+    }
+}
+
+/* Fix for Telegram movie photo aspect ratio - Make photos wider and less tall */
+img[src*="AgAC"], img[src*="photo"], img[src*="thumb"] {
+    max-width: 100% !important;
+    max-height: 300px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: cover !important;
+    border-radius: 10px !important;
+}
+
+/* For movie posts in Telegram channel */
+@media screen {
+    .tgme_widget_message_photo_wrap img,
+    .tgme_widget_message_photo img {
+        max-width: 100% !important;
+        max-height: 250px !important;
+        width: 100% !important;
+        height: auto !important;
+        object-fit: cover !important;
+        aspect-ratio: 16/9 !important;
     }
 }
 

@@ -74,11 +74,12 @@ The application adopts a modular architecture, promoting separation of concerns 
 - Post preview updated to remove category emojis and add "Title:" prefix to movie names
 
 **Ad Page Integration (August 6, 2025)**
-- Created complete ad page system with 15-second timer functionality
+- Created complete ad page system with 10-second timer functionality (updated from 15 seconds)
+- Added auto-scroll and auto-continue features: page scrolls down after 3 seconds, continues to bot after another 3 seconds if user doesn't interact
 - Integrated secure token-based download system with external ad page hosting
 - Ad page files ready for separate hosting on GitHub Pages
 - Updated bot configuration to work with external ad page URL
-- Complete workflow: Bot → Ad Page → Timer → Return to Bot → File Download
+- Complete workflow: Bot → Ad Page → Timer → Auto-scroll → Return to Bot → File Download
 
 **Migration to Replit Environment (August 6, 2025)**
 - Successfully migrated project from Replit Agent to standard Replit environment
@@ -98,3 +99,13 @@ The application adopts a modular architecture, promoting separation of concerns 
 - Simplified instructional messages by removing redundant text about default values 
 - Enhanced user experience with cleaner, shorter conversations that focus on end results
 - All conversation handlers now store original message reference for consistent editing throughout workflow
+
+**Bug Fixes and UI Improvements (August 6, 2025)**
+- Fixed critical category browsing issue - movies now properly display when selecting categories
+- Updated movie display format to show "Title: Movie Name" instead of plain movie names
+- Removed Description field from search results as it was showing N/A values
+- Enhanced database category matching for exact category matches instead of substring matching
+- Improved file ID handling in token system for better download reliability
+- Added CSS styling to improve movie photo aspect ratios (wider, less tall appearance)
+- Fixed duplicate database function definitions causing category search failures
+- Enhanced error logging for category browsing to aid in debugging
