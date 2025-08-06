@@ -1,4 +1,38 @@
 {
-  "next_id": 6,
-  "movies": {}
+  "next_id": 7,
+  "movies": {
+    "6": {
+      "added_by": 5379553841,
+      "categories": [
+        "Hollywood 🇺🇸",
+        "Bollywood 🇮🇳"
+      ],
+      "languages": [
+        "Hindi"
+      ],
+      "files": {
+        "480p": [
+          "BAACAgUAAxkBAAIH5GiTiGuv85sQmr_A7s43KxXJ2cq1AAJnFgACCgeYVDGhJCCiBlMmNgQ",
+          "AgADZxYAAgoHmFQ"
+        ],
+        "720p": [
+          "BAACAgUAAxkBAAIH5GiTiGuv85sQmr_A7s43KxXJ2cq1AAJnFgACCgeYVDGhJCCiBlMmNgQ",
+          "AgADZxYAAgoHmFQ"
+        ],
+        "1080p": [
+          "BAACAgUAAxkBAAIH5GiTiGuv85sQmr_A7s43KxXJ2cq1AAJnFgACCgeYVDGhJCCiBlMmNgQ",
+          "AgADZxYAAgoHmFQ"
+        ]
+      },
+      "thumbnail_file_id": "AgACAgUAAxkBAAIH12iTh9Hmpn7pSvGIQvRUMDKhCXu_AAJ7wjEbCgeYVNy9wPTveW_hAQADAgADeQADNgQ",
+      "title": "Unnamed",
+      "release_year": "২৩",
+      "runtime": "N/A",
+      "imdb_rating": "৬",
+      "is_series": false,
+      "movie_id": 6,
+      "added_at": "2025-08-06T16:54:03.690334",
+      "download_count": 1
+    }
+  }
 }
