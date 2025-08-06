@@ -457,3 +457,41 @@ def cleanup_expired_tokens():
     if expired_tokens:
         save_json(TOKENS_FILE, tokens)
         logger.info(f"Cleaned up {len(expired_tokens)} expired tokens")
+
+# --- Stats Functions ---
+
+def get_movies_by_category(category: str, limit: int = 30) -> List[dict]:
+    """Get movies by category for stats."""
+    movies = load_json(MOVIES_FILE)
+    
+    if category == "All 🌐":
+        # Return all movies for alphabet filtering
+        all_movies = list(movies.values())
+    else:
+        # Filter by specific category
+        all_movies = [
+            movie for movie in movies.values() 
+            if category in movie.get('categories', [])
+        ]
+    
+    # Sort by title and limit
+    all_movies.sort(key=lambda x: x.get('title', '').lower())
+    return all_movies[:limit]
+
+def get_movies_by_uploader(admin_id: int, limit: int = 30) -> List[dict]:
+    """Get movies uploaded by specific admin/owner."""
+    movies = load_json(MOVIES_FILE)
+    
+    admin_movies = [
+        movie for movie in movies.values() 
+        if movie.get('added_by') == admin_id
+    ]
+    
+    # Sort by date added (newest first)
+    admin_movies.sort(key=lambda x: x.get('added_at', ''), reverse=True)
+    return admin_movies[:limit]
+
+def get_all_admins() -> List[dict]:
+    """Get all admins for stats selection."""
+    admins = load_json(ADMINS_FILE)
+    return list(admins.values())

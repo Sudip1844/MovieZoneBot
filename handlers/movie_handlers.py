@@ -6,14 +6,14 @@ from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, 
 from telegram.constants import ParseMode
 
 import database as db
-from utils import get_category_keyboard, get_movie_search_results_markup, restricted
+from utils import get_category_keyboard, get_movie_search_results_markup, restricted, create_category_keyboard, create_movie_grid_markup
 from config import CATEGORIES
 
 # লগিং সেটআপ
 logger = logging.getLogger(__name__)
 
 # Conversation states
-REQUEST_MOVIE_NAME, DELETE_MOVIE_NAME, SHOW_STATS_MOVIE_NAME = range(3)
+REQUEST_MOVIE_NAME, DELETE_MOVIE_NAME, SHOW_STATS_MOVIE_NAME, SHOW_STATS_OPTION, SHOW_STATS_CATEGORY, SHOW_STATS_ADMIN, SHOW_STATS_MOVIE_LIST = range(7)
 
 # --- Search Movies ---
 
@@ -369,7 +369,7 @@ async def confirm_movie_deletion(update: Update, context: ContextTypes.DEFAULT_T
 
 @restricted(allowed_roles=['owner', 'admin'])
 async def show_stats_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Start the show stats conversation."""
+    """Start the show stats conversation with three options."""
     from utils import set_conversation_keyboard, set_conversation_commands
     
     user_role = db.get_user_role(update.effective_user.id)
@@ -378,13 +378,138 @@ async def show_stats_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     # Set conversation commands
     await set_conversation_commands(update, context)
     
+    # Create inline keyboard for three options
+    stats_options = [
+        [InlineKeyboardButton("🔍 Search by Movie Name", callback_data="stats_movie_name")],
+        [InlineKeyboardButton("📂 Search from Category", callback_data="stats_category")],
+        [InlineKeyboardButton("👤 Search by Admin Name", callback_data="stats_admin")]
+    ]
+    
     await update.message.reply_text(
         "📊 Movie Statistics\n\n"
-        "Please enter the name of the movie to see its statistics:\n\n"
+        "Choose how you want to search for movies:\n\n"
+        "• Search by Movie Name - Type movie name to find\n"
+        "• Search from Category - Browse movies by category\n"
+        "• Search by Admin Name - See movies uploaded by specific admin\n\n"
         "To cancel, press ❌ Cancel button.",
-        reply_markup=keyboard
+        reply_markup=InlineKeyboardMarkup(stats_options)
     )
-    return SHOW_STATS_MOVIE_NAME
+    return SHOW_STATS_OPTION
+
+async def handle_stats_option(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle stats option selection."""
+    query = update.callback_query
+    await query.answer()
+    
+    if query.data == "stats_movie_name":
+        await query.edit_message_text(
+            "🔍 Search by Movie Name\n\n"
+            "Please type the name of the movie to see its statistics:\n\n"
+            "To cancel, press ❌ Cancel button."
+        )
+        return SHOW_STATS_MOVIE_NAME
+    
+    elif query.data == "stats_category":
+        from config import BROWSE_CATEGORIES
+        from utils import create_category_keyboard
+        
+        keyboard = create_category_keyboard(BROWSE_CATEGORIES)
+        await query.edit_message_text(
+            "📂 Search from Category\n\n"
+            "Please select a category to browse movies:",
+            reply_markup=keyboard
+        )
+        return SHOW_STATS_CATEGORY
+    
+    elif query.data == "stats_admin":
+        # Get all admins
+        admins = db.get_all_admins()
+        if not admins:
+            await query.edit_message_text("❌ No admins found in the database.")
+            return ConversationHandler.END
+        
+        # Create admin selection keyboard
+        admin_buttons = []
+        for admin in admins:
+            short_name = admin.get('short_name', f"Admin-{admin['user_id']}")
+            admin_buttons.append([InlineKeyboardButton(f"👤 {short_name}", callback_data=f"admin_{admin['user_id']}")])
+        
+        # Add Owner option
+        from config import OWNER_ID
+        admin_buttons.insert(0, [InlineKeyboardButton("👑 Owner", callback_data=f"admin_{OWNER_ID}")])
+        
+        await query.edit_message_text(
+            "👤 Search by Admin Name\n\n"
+            "Please select an admin to see their uploaded movies:",
+            reply_markup=InlineKeyboardMarkup(admin_buttons)
+        )
+        return SHOW_STATS_ADMIN
+
+async def handle_stats_category(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle category selection for stats."""
+    query = update.callback_query
+    await query.answer()
+    
+    category = query.data.replace("cat_", "")
+    movies = db.get_movies_by_category(category, limit=30)
+    
+    if not movies:
+        await query.edit_message_text(f"❌ No movies found in category '{category}'.")
+        return ConversationHandler.END
+    
+    # Create movie grid markup similar to browse categories
+    from utils import create_movie_grid_markup
+    reply_markup = create_movie_grid_markup(movies, prefix="stats_view")
+    
+    await query.edit_message_text(
+        f"📂 Movies in '{category}' category ({len(movies)} found):\n\n"
+        "Click on any movie to see its statistics:",
+        reply_markup=reply_markup
+    )
+    return SHOW_STATS_MOVIE_LIST
+
+async def handle_stats_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle admin selection for stats."""
+    query = update.callback_query
+    await query.answer()
+    
+    admin_id = int(query.data.replace("admin_", ""))
+    movies = db.get_movies_by_uploader(admin_id, limit=30)
+    
+    if not movies:
+        from config import OWNER_ID
+        admin_name = "Owner" if str(admin_id) == str(OWNER_ID) else db.get_admin_info(admin_id).get('short_name', f"Admin-{admin_id}")
+        await query.edit_message_text(f"❌ No movies found uploaded by {admin_name}.")
+        return ConversationHandler.END
+    
+    # Create movie grid markup
+    from utils import create_movie_grid_markup
+    reply_markup = create_movie_grid_markup(movies, prefix="stats_view")
+    
+    from config import OWNER_ID
+    admin_name = "Owner" if str(admin_id) == str(OWNER_ID) else db.get_admin_info(admin_id).get('short_name', f"Admin-{admin_id}")
+    
+    await query.edit_message_text(
+        f"👤 Movies uploaded by {admin_name} ({len(movies)} found):\n\n"
+        "Click on any movie to see its statistics:",
+        reply_markup=reply_markup
+    )
+    return SHOW_STATS_MOVIE_LIST
+
+async def handle_stats_movie_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle movie selection from list to show stats."""
+    query = update.callback_query
+    await query.answer()
+    
+    movie_id = int(query.data.replace("stats_view_", ""))
+    movie = db.get_movie_details(movie_id)
+    
+    if not movie:
+        await query.edit_message_text("❌ Error: Movie not found.")
+        return ConversationHandler.END
+    
+    await show_movie_stats_query(query, context, movie)
+    return ConversationHandler.END
 
 async def get_movie_for_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle movie stats request."""
@@ -477,6 +602,57 @@ async def show_movie_stats(update: Update, context: ContextTypes.DEFAULT_TYPE, m
     
     await update.message.reply_html(stats_text)
 
+async def show_movie_stats_query(query, context: ContextTypes.DEFAULT_TYPE, movie: dict):
+    """Show statistics for a specific movie (for callback queries)."""
+    from config import OWNER_ID
+    
+    stats_text = f"📊 Statistics for {movie.get('title', 'Unknown')}\n\n"
+    stats_text += f"🎬 Movie ID: {movie['movie_id']}\n"
+    stats_text += f"📅 Added on: {movie.get('added_at', 'Unknown')[:10]}\n"
+    
+    # Get uploader information
+    added_by_id = movie.get('added_by')
+    if added_by_id:
+        if str(added_by_id) == str(OWNER_ID):
+            uploader_name = "Owner"
+        else:
+            # Check if it's an admin and get their short name
+            admin_info = db.get_admin_info(added_by_id)
+            if admin_info:
+                uploader_name = admin_info.get('short_name', f"Admin-{added_by_id}")
+            else:
+                uploader_name = f"User-{added_by_id}"
+    else:
+        uploader_name = "Unknown"
+    
+    stats_text += f"👤 Uploaded by: {uploader_name}\n"
+    
+    # Get accurate download count
+    download_count = movie.get('download_count', 0)
+    # Ensure download count is properly calculated
+    if isinstance(download_count, dict):
+        # If download_count is stored as dict per quality, sum them up
+        total_downloads = sum(download_count.values()) if download_count else 0
+    else:
+        total_downloads = download_count or 0
+    
+    stats_text += f"📥 Total Downloads: {total_downloads}\n"
+    
+    # Show available qualities and episodes
+    files = movie.get('files', {})
+    qualities = [q for q in files.keys() if not q.startswith('E')]
+    episodes = [q for q in files.keys() if q.startswith('E')]
+    
+    if qualities:
+        stats_text += f"🗂️ Available Qualities: {', '.join(qualities)}\n"
+    
+    if episodes:
+        # Count total episodes
+        episode_count = len(episodes)
+        stats_text += f"📺 Available Episodes: {episode_count} episodes\n"
+    
+    await query.edit_message_text(stats_text, parse_mode=ParseMode.HTML)
+
 async def handle_stats_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle stats callback from inline buttons."""
     query = update.callback_query
@@ -546,9 +722,21 @@ show_stats_conv = ConversationHandler(
         MessageHandler(filters.Regex("^📊 Show Stats$"), show_stats_start)
     ],
     states={
+        SHOW_STATS_OPTION: [
+            CallbackQueryHandler(handle_stats_option, pattern="^stats_(movie_name|category|admin)$")
+        ],
         SHOW_STATS_MOVIE_NAME: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, get_movie_for_stats),
             CallbackQueryHandler(handle_stats_callback, pattern="^stats_")
+        ],
+        SHOW_STATS_CATEGORY: [
+            CallbackQueryHandler(handle_stats_category, pattern="^cat_")
+        ],
+        SHOW_STATS_ADMIN: [
+            CallbackQueryHandler(handle_stats_admin, pattern="^admin_")
+        ],
+        SHOW_STATS_MOVIE_LIST: [
+            CallbackQueryHandler(handle_stats_movie_selection, pattern="^stats_view_")
         ]
     },
     fallbacks=[

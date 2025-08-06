@@ -254,6 +254,24 @@ def create_movie_grid_markup(movies: List[dict], prefix: str = "view") -> Inline
     
     return InlineKeyboardMarkup(buttons)
 
+def create_category_keyboard(categories: List[str]) -> InlineKeyboardMarkup:
+    """Create inline keyboard for category selection."""
+    buttons = []
+    
+    # Group categories into rows of 2
+    for i in range(0, len(categories), 2):
+        row = []
+        for j in range(2):
+            if i + j < len(categories):
+                category = categories[i + j]
+                # Remove emoji for callback data, keep for display
+                callback_category = category.split(' ')[0] if ' ' in category else category
+                row.append(InlineKeyboardButton(category, callback_data=f"cat_{callback_category}"))
+        if row:
+            buttons.append(row)
+    
+    return InlineKeyboardMarkup(buttons)
+
 # --- Dynamic Bot Commands Management ---
 async def set_conversation_commands(update: Update, context):
     """Remove hamburger menu entirely - no commands will appear there."""
