@@ -189,10 +189,21 @@ def format_movie_post(movie_details: dict, channel_username: str) -> str:
     # Build dynamic template - only include non-N/A fields
     title = movie_details.get('title', 'Unknown')
     languages = " | ".join(movie_details.get('languages', []))
-    categories = " | ".join(movie_details.get('categories', []))
     
-    # Start building the post
-    post_text = f"🍿 {title}\n\n"
+    # Remove emojis from categories for cleaner display
+    categories_raw = movie_details.get('categories', [])
+    categories_clean = []
+    for category in categories_raw:
+        # Remove emoji by taking only the text part before space
+        if ' ' in category:
+            clean_category = category.split(' ')[0]
+        else:
+            clean_category = category
+        categories_clean.append(clean_category)
+    categories = " | ".join(categories_clean)
+    
+    # Start building the post with "Title:" prefix
+    post_text = f"🍿 Title: {title}\n\n"
     
     # Only add fields that are not N/A or empty
     if languages:

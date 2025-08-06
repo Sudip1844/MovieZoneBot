@@ -63,6 +63,23 @@ The application adopts a modular architecture, promoting separation of concerns 
 
 ## Recent Changes
 
+**Enhanced Stats System (August 6, 2025)**
+- Completely upgraded "📊 Show Stats" command with three search options:
+  - 🔍 Search by Movie Name: Type movie name to find statistics
+  - 📂 Search from Category: Browse movies by category in 3x10 grid layout
+  - 👤 Search by Admin Name: View movies uploaded by specific admin/owner
+- Added new database functions: get_movies_by_category(), get_movies_by_uploader(), get_all_admins()
+- Enhanced statistics display with detailed movie information and download counts
+- Improved conversation flow with proper state management and error handling
+- Post preview updated to remove category emojis and add "Title:" prefix to movie names
+
+**Ad Page Integration (August 6, 2025)**
+- Created complete ad page system with 15-second timer functionality
+- Integrated secure token-based download system with external ad page hosting
+- Ad page files ready for separate hosting on GitHub Pages
+- Updated bot configuration to work with external ad page URL
+- Complete workflow: Bot → Ad Page → Timer → Return to Bot → File Download
+
 **Migration to Replit Environment (August 5, 2025)**
 - Successfully migrated project from Replit Agent to standard Replit environment
 - All dependencies installed and verified working (`python-telegram-bot[job-queue]==20.7`)
