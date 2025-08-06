@@ -121,6 +121,9 @@ async def add_movie_start(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         'languages': set(),
         'files': {} # { '480p': 'file_id_1', '720p': 'file_id_2' }
     }
+    
+    # Initialize conversation message tracking for editing
+    context.user_data['current_step_message'] = None
 
     sent_message = await update.message.reply_text(
         "🎬 Add New Movie/Series\n\n"
@@ -205,10 +208,10 @@ async def get_release_year(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     # Handle skip button
     if year_text == '⏭️ Skip Release Year':
         context.user_data['movie_data']['release_year'] = 'N/A'
-        message = "⏭️ Release year skipped (set to N/A).\n\nStep 4: Enter the runtime (e.g., 2hr 14min).\nOr press '⏭️ Skip Runtime' to use default (N/A)."
+        message = "⏭️ Release year skipped.\n\nStep 4: Enter the runtime (e.g., 2hr 14min)."
     else:
         context.user_data['movie_data']['release_year'] = year_text
-        message = "✅ Release year saved.\n\nStep 4: Enter the runtime (e.g., 2hr 14min).\nOr press '⏭️ Skip Runtime' to use default (N/A)."
+        message = "✅ Release year saved.\n\nStep 4: Enter the runtime (e.g., 2hr 14min)."
     
     # Add skip button for runtime
     skip_keyboard = [
@@ -237,10 +240,10 @@ async def get_runtime(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     # Handle skip button
     if runtime_text == '⏭️ Skip Runtime':
         context.user_data['movie_data']['runtime'] = 'N/A'
-        message = "⏭️ Runtime skipped (set to N/A).\n\nStep 5: Enter the IMDb rating (e.g., 8.3).\nOr press '⏭️ Skip IMDb Rating' to use default (N/A)."
+        message = "⏭️ Runtime skipped.\n\nStep 5: Enter the IMDb rating (e.g., 8.3)."
     else:
         context.user_data['movie_data']['runtime'] = runtime_text
-        message = "✅ Runtime saved.\n\nStep 5: Enter the IMDb rating (e.g., 8.3).\nOr press '⏭️ Skip IMDb Rating' to use default (N/A)."
+        message = "✅ Runtime saved.\n\nStep 5: Enter the IMDb rating (e.g., 8.3)."
     
     # Add skip button for IMDb rating
     skip_keyboard = [
@@ -269,10 +272,10 @@ async def get_imdb_rating(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     # Handle skip button
     if rating_text == '⏭️ Skip IMDb Rating':
         context.user_data['movie_data']['imdb_rating'] = 'N/A'
-        message = "⏭️ IMDb rating skipped (set to N/A).\n\nStep 6: Please select the movie categories (you can select multiple).\nOr press '⏭️ Skip Categories' to use default (General)."
+        message = "⏭️ IMDb rating skipped.\n\nStep 6: Please select the movie categories."
     else:
         context.user_data['movie_data']['imdb_rating'] = rating_text
-        message = "✅ IMDb rating saved.\n\nStep 6: Please select the movie categories (you can select multiple).\nOr press '⏭️ Skip Categories' to use default (General)."
+        message = "✅ IMDb rating saved.\n\nStep 6: Please select the movie categories."
 
     keyboard = build_selection_keyboard_with_skip(CATEGORIES, set())
     await update.message.reply_text(message, reply_markup=keyboard)
@@ -292,7 +295,7 @@ async def choose_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
         keyboard = build_selection_keyboard_with_skip(LANGUAGES, set())
         await query.edit_message_text(
-            "✅ Categories saved.\n\nStep 7: Now select the languages.\nOr press '⏭️ Skip' to use default (English).",
+            "✅ Categories saved.\n\nStep 7: Now select the languages.",
             reply_markup=keyboard
         )
         return CHOOSE_LANGUAGES
@@ -302,7 +305,7 @@ async def choose_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         context.user_data['movie_data']['categories'] = {'General'}
         keyboard = build_selection_keyboard_with_skip(LANGUAGES, set())
         await query.edit_message_text(
-            "⏭️ Categories skipped (set to General).\n\nStep 7: Now select the languages.\nOr press '⏭️ Skip' to use default (English).",
+            "⏭️ Categories skipped.\n\nStep 7: Now select the languages.",
             reply_markup=keyboard
         )
         return CHOOSE_LANGUAGES
@@ -344,7 +347,7 @@ async def choose_languages(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         keyboard = [[InlineKeyboardButton("Single Movie File", callback_data="filetype_single")],
                     [InlineKeyboardButton("Multiple Series Files", callback_data="filetype_series")]]
         await query.edit_message_text(
-            "⏭️ Languages skipped (set to English).\n\nStep 8: Is this a single movie or a web series?",
+            "⏭️ Languages skipped.\n\nStep 8: Is this a single movie or a web series?",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
         return CHOOSE_FILE_TYPE
@@ -354,7 +357,8 @@ async def choose_languages(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     else:
         context.user_data['movie_data']['languages'].add(selected_option)
 
-    keyboard = build_selection_keyboard_with_skip(LANGUAGES, context.user_data['movie_data']['languages'])
+    # Use regular keyboard without skip button for language updates - no more skipping after this point
+    keyboard = build_selection_keyboard(LANGUAGES, context.user_data['movie_data']['languages'])
     await query.edit_message_reply_markup(reply_markup=keyboard)
     return CHOOSE_LANGUAGES
 
