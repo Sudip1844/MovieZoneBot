@@ -515,7 +515,6 @@ add_admin_conv = ConversationHandler(
     states={
         GET_ADMIN_USERID: [MessageHandler(filters.TEXT | filters.FORWARDED, get_admin_userid)],
         GET_ADMIN_SHORT_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_admin_short_name)],
-        CONFIRM_ADD_ADMIN: [CallbackQueryHandler(confirm_add_admin, pattern='^(confirm|cancel)_add_admin$')],
     },
     fallbacks=[
         CommandHandler('cancel', cancel_admin_conversation),
@@ -545,7 +544,6 @@ add_channel_conv = ConversationHandler(
     states={
         GET_CHANNEL_LINK: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_channel_link)],
         GET_CHANNEL_SHORT_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_channel_short_name)],
-        CONFIRM_ADD_CHANNEL: [CallbackQueryHandler(confirm_add_channel, pattern='^(confirm|cancel)_add_channel$')],
     },
     fallbacks=[
         CommandHandler('cancel', cancel_channel_conversation),
