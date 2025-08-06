@@ -15,7 +15,7 @@ OWNER_ID = 5379553841
 
 # --- Ad Page Configuration ---
 # আপনার GitHub Pages-এ থাকা অ্যাড পেজের URL
-AD_PAGE_URL = "https://sudip1844.github.io/moviezone-redirect-page-/"
+AD_PAGE_URL = "https://sudip1844.github.io/moviezone-redirect-page-"
 
 # --- Bot Settings ---
 # মুভি যোগ করার সময় যে ক্যাটাগরিগুলো দেখানো হবে (আপনার ছবি অনুযায়ী)
