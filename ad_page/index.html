@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Zone — Your One-Stop Movie Destination</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <!-- Timer Section (Always visible at top) -->
+    <div class="timer-section" id="timerSection">
+        <div class="timer-circle">
+            <div class="timer-text" id="timerText">15</div>
+        </div>
+        <div class="timer-message">
+            🎬 Your download is being prepared...<br>
+            Please wait: <span id="timerSeconds">15</span> seconds
+        </div>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Scroll to Bottom Button (Hidden initially) -->
+    <div class="scroll-button-container" id="scrollButtonContainer" style="display: none;">
+        <button class="scroll-to-bottom-btn" id="scrollToBottomBtn">
+            <span class="btn-icon">⬇️</span>
+            <span class="btn-text">Scroll to Bottom</span>
+            <span class="btn-icon">⬇️</span>
+        </button>
+    </div>
+
+    <!-- Main Content (Always visible) -->
+    <div class="main-content" id="mainContent">
+        <header class="header">
+            <h1>🎬 Movie Zone — Your One-Stop Movie Destination</h1>
+            <p class="subtitle">Welcome to your favorite movie world</p>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="section">
+                <h2>✅ Wide Range of Movie Categories</h2>
+                <p>Bollywood, Hollywood, South Indian, Web Series, Bengali, Animation, Comedy, Action, Romance, Horror, Thriller, Sci-Fi, K-Drama, and 18+ content.</p>
+            </div>
+            <!-- [Place Banner Ad Here] -->
+
+            <div class="section">
+                <h2>✅ Multi-Language Movie Support</h2>
+                <p>Bengali, Hindi, English, Tamil, Telugu, Gujarati — something for everyone!</p>
+            </div>
+            <!-- [Place Social Bar Ad Here] -->
+
+            <div class="section">
+                <h2>✅ Premium Download Experience</h2>
+                <p>Descriptions, screenshots, cast information, and high-speed download links.</p>
+            </div>
+            <!-- [Place Native Banner Ad Here] -->
+
+            <div class="section">
+                <h2>✅ No Sign-Up Required</h2>
+                <p>Open, browse, and download instantly.</p>
+            </div>
+            <!-- [Place Direct Link Ad Button Here] -->
+
+            <div class="section">
+                <h2>✅ Smart Movie Suggestions</h2>
+                <p>Intelligent recommendations based on your interests.</p>
+            </div>
+            <!-- [Place Banner Ad Here] -->
+
+            <div class="section">
+                <h2>✅ Reward Video System</h2>
+                <p>Unlock movies after a quick 15 second ad view.</p>
+            </div>
+            <!-- [Place Popunder Script Here] -->
+
+            <div class="section">
+                <h2>✅ Mobile-Optimized Interface</h2>
+                <p>Fast, clean experience even on slow internet.</p>
+            </div>
+            <!-- [Place Mobile Banner 320x50 Here] -->
+
+            <div class="section">
+                <h2>✅ Regular Movie Updates</h2>
+                <p>Fresh content added every week.</p>
+            </div>
+            <!-- [Place Banner Ad Here] -->
+
+            <div class="section">
+                <h2>✅ 100% Safe & Secure</h2>
+                <p>No fake buttons, malware, or redirections.</p>
+            </div>
+            <!-- [Place Native Banner Ad Here] -->
+
+            <div class="section telegram-section">
+                <h2>✅ Join Our Telegram Channel</h2>
+                <p>👉 <a href="https://t.me/moviezone969" target="_blank" class="telegram-link">t.me/moviezone969</a> — for instant updates.</p>
+            </div>
+
+            <!-- Continue Button (Hidden initially) -->
+            <div class="download-section" id="downloadSection" style="display: none;">
+                <div class="movie-icon">🎬</div>
+                <p class="download-message">
+                    <span class="click-icon">👇</span>
+                    Click here to get your movie
+                    <span class="click-icon">👇</span>
+                </p>
+                <button class="continue-btn" id="continueBtn">Continue to Bot</button>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© 2025 Movie Zone | Enjoy your favorite movies</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
