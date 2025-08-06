@@ -123,7 +123,7 @@ async def get_admin_short_name(update: Update, context: ContextTypes.DEFAULT_TYP
     
     # Add admin directly and show final result in original message
     admin_info = context.user_data['new_admin']
-    success = db.add_admin(admin_info['id'], admin_info['short_name'])
+    success = db.add_admin(admin_info['id'], admin_info['short_name'], admin_info.get('first_name', 'Unknown'), admin_info.get('username'))
     
     admin_message = context.user_data.get('admin_message')
     if success:
@@ -194,11 +194,12 @@ async def confirm_remove_admin(update: Update, context: ContextTypes.DEFAULT_TYP
     await query.answer()
     
     if query.data.startswith("remove_admin_"):
-        admin_id = query.data.split("_")[2]
+        admin_id_str = query.data.split("_")[2]
+        admin_id = int(admin_id_str)
         admin_info = db.get_admin_info(admin_id)
         admin_name = admin_info.get('short_name', f'Admin-{admin_id}') if admin_info else f'Admin-{admin_id}'
         
-        success = db.remove_admin(admin_id)
+        success = db.remove_admin(admin_id_str)
         
         if success:
             result_text = f"✅ {admin_name} removed as admin"
@@ -320,8 +321,8 @@ async def get_channel_short_name(update: Update, context: ContextTypes.DEFAULT_T
             await update.message.reply_text(error_text)
         return GET_CHANNEL_LINK
     
-    # Add channel to database
-    success = db.add_channel(channel_id, channel_name, short_name)
+    # Add channel to database  
+    success = db.add_channel(channel_id, channel_name or "Unknown", short_name or "Unknown")
     
     channel_message = context.user_data.get('channel_message')
     if success:

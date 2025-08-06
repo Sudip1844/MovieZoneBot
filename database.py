@@ -303,6 +303,11 @@ def remove_channel(identifier: str) -> bool:
     logger.warning(f"Channel not found: {identifier}")
     return False
 
+def get_channel_info(channel_id: str) -> Optional[Dict]:
+    """Get channel information by channel ID."""
+    channels = load_json(CHANNELS_FILE)
+    return channels.get(channel_id)
+
 def get_all_channels() -> List[Dict]:
     """Get all channels."""
     channels = load_json(CHANNELS_FILE)
